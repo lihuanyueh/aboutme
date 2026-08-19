@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>骷髏迷宮戰鬥遊戲：遊戲演變與 Prompt 進化分析報告</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    /* Embedded Chart Container Sizing Logic as required */
+    .chart-container {
+      position: relative;
+      width: 100%;
+      max-width: 680px;
+      margin-left: auto;
+      margin-right: auto;
+      height: 320px;
+      max-height: 380px;
+    }
+    @media (min-width: 768px) {
+      .chart-container {
+        height: 350px;
+      }
+    }
+    
+    /* Custom Smooth Transitions */
+    .tab-btn.active {
+      background-color: #0284c7;
+      color: #ffffff;
+      border-color: #0284c7;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+    }
+  </style>
+
+  <!-- Chosen Palette: Warm Sand & Slate Modern Arcade -->
+  <!-- Application Structure Plan: 
+       1. Hero Dashboard Section: Report Title, Game Producer Badge, Core Stats summary counters (5 Major Evolution Steps, Skill Upgrade Level, 4 Core Prompt Techniques).
+       2. Interactive Game Evolution Roadmap (遊戲演變歷程圖譜): Filterable milestone timeline detailing the 5 stages of game updates with dynamic Chart.js feature-richness analysis.
+       3. Prompt Evolution Laboratory (Prompt 進化實驗室): Interactive comparison view of Stage 1 (Fuzzy) vs Stage 2 (Precision Game Director) prompt patterns with real-world examples.
+       4. Game Master's Prompt Secret Book (給未來的 Prompt 秘笈 4 大法則): Interactive accordion/cards with actionable tips tailored for young game developers.
+       5. Interactive Prompt Simulator Sandbox (Prompt 小試身手練習區): An interactive tool allowing users to practice refining raw ideas into game-ready prompts.
+       This structure transforms the retrospective report into an educational gamified learning hub.
+  -->
+  <!-- Visualization & Content Choices:
+       - Evolution Growth Curve -> Line/Radar Chart via Chart.js Canvas -> Visualizes skill & complexity growth -> Confirming Canvas, NO SVG.
+       - Stage Comparison Matrix -> Interactive JS Tabs/Cards -> Side-by-side prompt transformation analysis -> Simple vanilla JS interactivity.
+       - Element Attribute Breakdown -> Interactive Canvas Pie/Donut Chart -> Shows core combat mechanics -> Dynamic update via Chart.js Canvas.
+       - Prompt Sandbox -> Vanilla JS State Form -> Practice converting fuzzy ideas into precise bug fixes -> Pure HTML/CSS/JS.
+  -->
+  <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+  <!-- TOP HEADER & NAV -->
+  <header class="bg-slate-900 text-white sticky top-0 z-30 shadow-md border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <span class="text-2xl animate-bounce">💀</span>
+        <div>
+          <h1 class="font-bold text-base sm:text-lg tracking-wide text-amber-400">骷髏迷宮遊戲：進化與 Prompt 分析報告</h1>
+          <p class="text-xs text-slate-400 hidden sm:block">獻給未來的小遊戲大師 • 專屬開發成長紀錄</p>
+        </div>
+      </div>
+
+      <!-- Quick Nav Buttons -->
+      <nav class="flex items-center space-x-1 sm:space-x-2 text-xs sm:text-sm font-medium">
+        <button onclick="scrollToSection('evolution')" class="px-2.5 py-1.5 rounded-lg hover:bg-slate-800 text-slate-300 hover:text-white transition">遊戲大變身</button>
+        <button onclick="scrollToSection('prompt-evolution')" class="px-2.5 py-1.5 rounded-lg hover:bg-slate-800 text-slate-300 hover:text-white transition">Prompt 進化</button>
+        <button onclick="scrollToSection('guidebook')" class="px-2.5 py-1.5 rounded-lg hover:bg-slate-800 text-slate-300 hover:text-white transition">製作人秘笈</button>
+        <button onclick="scrollToSection('sandbox')" class="px-2.5 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-lg transition shadow-sm">Prompt 實戰</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT CONTAINER -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+
+    <!-- HERO DASHBOARD OVERVIEW -->
+    <section class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm relative overflow-hidden">
+      <div class="relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
+        <div class="lg:col-span-2 space-y-4">
+          <div class="inline-flex items-center space-x-2 bg-amber-100 text-amber-900 px-3 py-1 rounded-full text-xs font-bold">
+            <span>🚀 遊戲總監等級解鎖：Level UP!</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            從一個簡單點子，到完整的 <span class="text-sky-600">2D 動作冒險遊戲</span>！
+          </h2>
+          <p class="text-slate-600 text-sm sm:text-base leading-relaxed">
+            這份報告記錄了你如何發揮無窮的想像力，透過一次次與 AI 夥伴對話，將骷髏迷宮戰鬥遊戲一步步打造成擁有立體地圖、紙娃娃換裝、夥伴軍團與戰鬥平衡的酷炫遊戲！
+          </p>
+
+          <!-- Core Stat Badges -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+            <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200/60 text-center">
+              <div class="text-2xl font-black text-sky-600">5 大</div>
+              <div class="text-xs text-slate-500 mt-0.5">需求迭代階段</div>
+            </div>
+            <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200/60 text-center">
+              <div class="text-2xl font-black text-amber-500">4 種</div>
+              <div class="text-xs text-slate-500 mt-0.5">魔法超能力屬性</div>
+            </div>
+            <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200/60 text-center">
+              <div class="text-2xl font-black text-emerald-600">1.5 秒</div>
+              <div class="text-xs text-slate-500 mt-0.5">受傷無敵閃爍保護</div>
+            </div>
+            <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200/60 text-center">
+              <div class="text-2xl font-black text-indigo-600">100%</div>
+              <div class="text-xs text-slate-500 mt-0.5">總監級精準修Bug</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Interactive Attribute Donut Chart -->
+        <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 flex flex-col items-center">
+          <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">🎮 遊戲核心屬性佔比</h3>
+          <div class="chart-container" style="height: 200px; max-height: 220px;">
+            <canvas id="attributeChart"></canvas>
+          </div>
+          <p class="text-[11px] text-slate-400 text-center mt-2">點擊上方圖表可檢視各超能力技能特色</p>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- SECTION 1: GAME EVOLUTION ROADMAP -->
+    <section id="evolution" class="space-y-6">
+      <div class="border-l-4 border-sky-500 pl-4">
+        <h2 class="text-xl sm:text-2xl font-bold text-slate-900">一、 遊戲需求的「大變身」歷程（迭代變化）</h2>
+        <p class="text-slate-600 text-sm mt-1">
+          點擊下方不同的變身階段，探索你的遊戲如何從無到有，一步步加入酷炫機制與視覺升級！
+        </p>
+      </div>
+
+      <!-- Interactive Tab Selector for 5 Evolution Stages -->
+      <div class="flex flex-wrap gap-2 pb-2">
+        <button onclick="selectEvolutionStage(1)" id="stage-btn-1" class="tab-btn active px-4 py-2 rounded-xl border border-slate-300 text-xs sm:text-sm font-bold transition flex items-center gap-1.5 bg-white">
+          <span>🔥 Stage 1</span>
+          <span>核心規則與屬性</span>
+        </button>
+        <button onclick="selectEvolutionStage(2)" id="stage-btn-2" class="tab-btn px-4 py-2 rounded-xl border border-slate-300 text-xs sm:text-sm font-bold transition flex items-center gap-1.5 bg-white text-slate-600 hover:border-sky-400">
+          <span>🌿 Stage 2</span>
+          <span>世界觀與動態鏡頭</span>
+        </button>
+        <button onclick="selectEvolutionStage(3)" id="stage-btn-3" class="tab-btn px-4 py-2 rounded-xl border border-slate-300 text-xs sm:text-sm font-bold transition flex items-center gap-1.5 bg-white text-slate-600 hover:border-sky-400">
+          <span>🪖 Stage 3</span>
+          <span>立體骷髏與換裝</span>
+        </button>
+        <button onclick="selectEvolutionStage(4)" id="stage-btn-4" class="tab-btn px-4 py-2 rounded-xl border border-slate-300 text-xs sm:text-sm font-bold transition flex items-center gap-1.5 bg-white text-slate-600 hover:border-sky-400">
+          <span>🤝 Stage 4</span>
+          <span>夥伴軍團系統</span>
+        </button>
+        <button onclick="selectEvolutionStage(5)" id="stage-btn-5" class="tab-btn px-4 py-2 rounded-xl border border-slate-300 text-xs sm:text-sm font-bold transition flex items-center gap-1.5 bg-white text-slate-600 hover:border-sky-400">
+          <span>🛡️ Stage 5</span>
+          <span>數值與體驗平衡</span>
+        </button>
+      </div>
+
+      <!-- Stage Detail Display Card & Evolution Trend Chart -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+        
+        <!-- Left: Stage Detail Card -->
+        <div id="stage-detail-card" class="lg:col-span-7 bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span id="stage-badge" class="px-3 py-1 bg-sky-100 text-sky-800 rounded-full text-xs font-bold">階段 1 / 5</span>
+              <span id="stage-tag" class="text-xs font-mono font-bold text-slate-400">玩法基石</span>
+            </div>
+            <h3 id="stage-title" class="text-xl font-bold text-slate-900 mb-3">1. 核心規則與屬性（玩法基石）</h3>
+            <p id="stage-desc" class="text-slate-600 text-sm leading-relaxed mb-6">
+              在遊戲開發最初，你定義了四種靈魂超能力屬性，為戰鬥奠定了豐富多彩的互動規則：
+            </p>
+
+            <!-- Feature Highlight List -->
+            <div id="stage-features" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-500 flex items-center space-x-2">
+            <span>💡 製作人觀點：</span>
+            <span id="stage-insight">先把基本的玩法與能力定好，遊戲骨架就成立了！</span>
+          </div>
+        </div>
+
+        <!-- Right: Feature Complexity Growth Chart -->
+        <div class="lg:col-span-5 bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm flex flex-col justify-between">
+          <div class="mb-2">
+            <h3 class="text-sm font-bold text-slate-800">📈 遊戲豐富度與好玩度成長曲線</h3>
+            <p class="text-xs text-slate-500">隨著需求增加，遊戲的玩性呈現爆發式成長！</p>
+          </div>
+          <div class="chart-container">
+            <canvas id="evolutionChart"></canvas>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- SECTION 2: PROMPT EVOLUTION LAB -->
+    <section id="prompt-evolution" class="space-y-6">
+      <div class="border-l-4 border-amber-500 pl-4">
+        <h2 class="text-xl sm:text-2xl font-bold text-slate-900">二、 你的 Prompt（指令）有沒有進步呢？</h2>
+        <p class="text-slate-600 text-sm mt-1">
+          答案是：<b>有，而且進步超級神速！你簡直就像一個經驗豐富的遊戲製作人（Game Producer）！</b>
+        </p>
+      </div>
+
+      <!-- Stage Comparison Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Stage 1 Prompt Card -->
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm relative overflow-hidden flex flex-col justify-between">
+          <div class="absolute top-0 right-0 bg-slate-100 text-slate-600 text-xs font-bold px-3 py-1 rounded-bl-xl">
+            階段一：剛開始
+          </div>
+          <div>
+            <div class="flex items-center space-x-2 mb-3">
+              <span class="text-2xl">🌱</span>
+              <h3 class="font-bold text-slate-900 text-lg">模糊的方向性指令</h3>
+            </div>
+            <p class="text-xs text-slate-500 mb-4">
+              剛開始時，指令比較大方向，給予 AI 較大的自由發揮空間建立基礎骨架：
+            </p>
+            
+            <div class="space-y-2 mb-4">
+              <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-700 font-mono">
+                💬 範例 1：「幫我整理遊戲需求」
+              </div>
+              <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-700 font-mono">
+                💬 範例 2：「開始做個網頁遊戲」
+              </div>
+            </div>
+          </div>
+
+          <div class="p-3 bg-amber-50 rounded-xl border border-amber-200/60 text-xs text-amber-900">
+            <b>效果：</b> AI 成功幫你建構出了遊戲的基本架構與基礎畫布。
+          </div>
+        </div>
+
+        <!-- Stage 2 Prompt Card -->
+        <div class="bg-white rounded-2xl p-6 border-2 border-amber-400 shadow-md relative overflow-hidden flex flex-col justify-between">
+          <div class="absolute top-0 right-0 bg-amber-500 text-slate-950 text-xs font-bold px-3 py-1 rounded-bl-xl">
+            階段二：精準總監
+          </div>
+          <div>
+            <div class="flex items-center space-x-2 mb-3">
+              <span class="text-2xl">🎯</span>
+              <h3 class="font-bold text-slate-900 text-lg">精準微調（Bug Fixing & Feature Requests）</h3>
+            </div>
+            <p class="text-xs text-slate-500 mb-4">
+              隨著遊戲執行，你扮演起「遊戲總監」角色，進行超級具體且準確的優化：
+            </p>
+
+            <!-- Dynamic Interactive Prompt Switcher -->
+            <div class="space-y-2 mb-4">
+              <div onclick="showPromptCase(1)" class="p-3 bg-sky-50 hover:bg-sky-100 rounded-xl border border-sky-200 text-xs text-sky-900 font-bold cursor-pointer transition flex justify-between items-center">
+                <span>💬 「螢幕要跟著角色移動」</span>
+                <span class="text-[10px] bg-sky-200 text-sky-800 px-2 py-0.5 rounded-full">指出鏡頭問題</span>
+              </div>
+              <div onclick="showPromptCase(2)" class="p-3 bg-sky-50 hover:bg-sky-100 rounded-xl border border-sky-200 text-xs text-sky-900 font-bold cursor-pointer transition flex justify-between items-center">
+                <span>💬 「頭盔不想要遮到眼睛」</span>
+                <span class="text-[10px] bg-sky-200 text-sky-800 px-2 py-0.5 rounded-full">指出美術穿模</span>
+              </div>
+              <div onclick="showPromptCase(3)" class="p-3 bg-sky-50 hover:bg-sky-100 rounded-xl border border-sky-200 text-xs text-sky-900 font-bold cursor-pointer transition flex justify-between items-center">
+                <span>💬 「我不能一下就被打死」</span>
+                <span class="text-[10px] bg-sky-200 text-sky-800 px-2 py-0.5 rounded-full">數值平衡調整</span>
+              </div>
+              <div onclick="showPromptCase(4)" class="p-3 bg-sky-50 hover:bg-sky-100 rounded-xl border border-sky-200 text-xs text-sky-900 font-bold cursor-pointer transition flex justify-between items-center">
+                <span>💬 「武器顏色要不一樣，夥伴也能裝備」</span>
+                <span class="text-[10px] bg-sky-200 text-sky-800 px-2 py-0.5 rounded-full">深度擴充功能</span>
+              </div>
+            </div>
+          </div>
+
+          <div id="case-insight-box" class="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-xs text-emerald-900">
+            <b>總結：</b> 你的 Prompt 從「模糊想法」變成「精準指令」，這是最棒的溝通方式！
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- SECTION 3: GAME PRODUCER GUIDEBOOK (4 SECRET TIPS) -->
+    <section id="guidebook" class="space-y-6">
+      <div class="border-l-4 border-emerald-500 pl-4">
+        <h2 class="text-xl sm:text-2xl font-bold text-slate-900">三、 給未來製作遊戲的超強 Prompt 秘笈</h2>
+        <p class="text-slate-600 text-sm mt-1">
+          如果你以後想做出更多好玩的遊戲（太空大戰、寶可夢冒險或賽車），試試這 4 個秘笈：
+        </p>
+      </div>
+
+      <!-- 4 Secret Cards Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        
+        <!-- Tip 1 -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm hover:border-sky-400 hover:shadow-md transition flex flex-col justify-between">
+          <div>
+            <div class="w-10 h-10 rounded-xl bg-sky-100 text-sky-700 font-black text-lg flex items-center justify-center mb-3">
+              1
+            </div>
+            <h3 class="font-bold text-slate-900 text-base mb-1">🧱 分步完成</h3>
+            <p class="text-xs text-sky-600 font-bold mb-2">Step-by-Step 堆積木</p>
+            <p class="text-xs text-slate-600 leading-relaxed">
+              不要一次把所有東西（地圖、角色、音樂、商店、十種技能）擠在第一句。先做好「主角會跑跳」，再做地圖，最後才做裝備！
+            </p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] font-semibold text-sky-700">
+            👉 先建骨架，再加肌肉！
+          </div>
+        </div>
+
+        <!-- Tip 2 -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm hover:border-amber-400 hover:shadow-md transition flex flex-col justify-between">
+          <div>
+            <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 font-black text-lg flex items-center justify-center mb-3">
+              2
+            </div>
+            <h3 class="font-bold text-slate-900 text-base mb-1">🐛 抓蟲專家</h3>
+            <p class="text-xs text-amber-600 font-bold mb-2">精準描述具體問題</p>
+            <p class="text-xs text-slate-600 leading-relaxed">
+              如果遊戲怪怪的，不要只說「不好玩」。要明確告訴 AI：「我的頭盔擋住眼睛了，請把它移到頭頂上」或「敵人打我太痛了，加無敵時間」。
+            </p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] font-semibold text-amber-700">
+            👉 精準指出 bug 位置！
+          </div>
+        </div>
+
+        <!-- Tip 3 -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm hover:border-purple-400 hover:shadow-md transition flex flex-col justify-between">
+          <div>
+            <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 font-black text-lg flex items-center justify-center mb-3">
+              3
+            </div>
+            <h3 class="font-bold text-slate-900 text-base mb-1">🎨 形容畫面感覺</h3>
+            <p class="text-xs text-purple-600 font-bold mb-2">Describe the Vibe</p>
+            <p class="text-xs text-slate-600 leading-relaxed">
+              描述畫面時多用豐富的形容詞，例如：「我想要一把會發紫光的雷霆劍」、「背景要亮一點，不要黑漆漆的」。
+            </p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] font-semibold text-purple-700">
+            👉 善用顏色與視覺形容！
+          </div>
+        </div>
+
+        <!-- Tip 4 -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm hover:border-emerald-400 hover:shadow-md transition flex flex-col justify-between">
+          <div>
+            <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 font-black text-lg flex items-center justify-center mb-3">
+              4
+            </div>
+            <h3 class="font-bold text-slate-900 text-base mb-1">🤝 AI 程式好夥伴</h3>
+            <p class="text-xs text-emerald-600 font-bold mb-2">持續對話迭代優化</p>
+            <p class="text-xs text-slate-600 leading-relaxed">
+              每次 AI 寫完程式碼後，你可以一邊試玩一邊給它建議，像好朋友聊天一樣，把遊戲變得越來越完美！
+            </p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] font-semibold text-emerald-700">
+            👉 邊玩邊改，不斷進步！
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- SECTION 4: INTERACTIVE PROMPT SANDBOX -->
+    <section id="sandbox" class="bg-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden">
+      <div class="max-w-3xl space-y-4">
+        <div class="inline-flex items-center space-x-2 bg-amber-500/20 text-amber-300 border border-amber-500/40 px-3 py-1 rounded-full text-xs font-bold">
+          <span>🛠️ 遊戲製作人試煉場</span>
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+          小試身手：打造你的下一個 Prompt！
+        </h2>
+        <p class="text-slate-300 text-sm leading-relaxed">
+          選擇你想在遊戲中說明的狀況，試試看如何運用「總監級 Prompt 秘笈」把模糊的想法變成給 AI 的超級指令！
+        </p>
+
+        <!-- Sandbox Form -->
+        <div class="bg-slate-800/80 rounded-2xl p-5 border border-slate-700 space-y-4 mt-6">
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-2">1. 選擇你想要加入或修復的遊戲需求：</label>
+            <select id="sb-issue" onchange="updatePromptSandbox()" class="w-full bg-slate-900 border border-slate-600 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-100 focus:outline-none focus:border-amber-400">
+              <option value="too-hard">敵人太強了，我一下就被打死</option>
+              <option value="visual-gear">我想讓武器看起來更厲害</option>
+              <option value="camera-move">主角跑太快，超出螢幕看不到畫面了</option>
+            </select>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- Bad Prompt Output -->
+            <div class="bg-red-950/40 border border-red-800/50 rounded-xl p-3">
+              <span class="text-[10px] font-bold text-red-400 block mb-1">❌ 一般新手 Prompt (模糊)</span>
+              <p id="sb-bad-text" class="text-xs text-red-200 font-mono">「遊戲好難，改簡單一點」</p>
+            </div>
+
+            <!-- Great Prompt Output -->
+            <div class="bg-emerald-950/40 border border-emerald-800/50 rounded-xl p-3">
+              <span class="text-[10px] font-bold text-emerald-400 block mb-1">🌟 總監級 Prompt (精準秘笈)</span>
+              <p id="sb-good-text" class="text-xs text-emerald-200 font-mono">「請幫我加入 1.5 秒受傷無敵閃爍保護，這樣被打到就不會連續扣血！」</p>
+            </div>
+          </div>
+
+          <div class="p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl text-xs text-amber-200 flex items-center justify-between">
+            <span id="sb-tip">💡 秘笈解析：明確指出機制與期待的效果，AI 就能精準寫出代碼！</span>
+            <button onclick="copyGoodPrompt()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-3 py-1 rounded-lg text-xs transition shadow">
+              複製優秀 Prompt
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-slate-900 text-slate-400 border-t border-slate-800 py-6 text-center text-xs">
+    <div class="max-w-7xl mx-auto px-4 space-y-2">
+      <p>🚀 繼續保持你的創造力，你已經是一個超棒的小遊戲設計師了！</p>
+      <p class="text-slate-600">骷髏迷宮戰鬥遊戲 • 遊戲演變與 Prompt 進化分析報告 SPA</p>
+    </div>
+  </footer>
+
+  <!-- JAVASCRIPT INTERACTION LOGIC -->
+  <script>
+    /* --------------------------------------------------------------------------
+       1. DATA STRUCTURES FOR EVOLUTION STAGES & PROMPTS
+       -------------------------------------------------------------------------- */
+    const stageData = {
+      1: {
+        title: "1. 核心規則與屬性（玩法基石）",
+        tag: "玩法基石",
+        badge: "階段 1 / 5",
+        desc: "在遊戲開發最初，你定義了四種靈魂超能力屬性，為戰鬥奠定了豐富多彩的互動規則：",
+        features: [
+          { icon: "🔥", name: "火屬性", detail: "持續燃燒傷害效果" },
+          { icon: "⚡", name: "電屬性", detail: "立即扣血高爆發" },
+          { icon: "❄️", name: "冰屬性", detail: "定格 5 秒無法移動" },
+          { icon: "💨", name: "加速屬性", detail: "迅速往前衝刺避險" }
+        ],
+        insight: "先把基本的玩法與能力定好，遊戲骨架就成立了！"
+      },
+      2: {
+        title: "2. 世界觀與鏡頭（畫面升級）",
+        tag: "視覺與鏡頭",
+        badge: "階段 2 / 5",
+        desc: "從平淡的單圖升級為具備空間感的地圖與視角，大幅提升探索樂趣：",
+        features: [
+          { icon: "🧱", name: "3D 立體石磚牆", detail: "具備高低光影的迷宮牆" },
+          { icon: "🌿", name: "生動綠藤蔓", detail: "牆面隨機生成藤蔓細節" },
+          { icon: "🌾", name: "草叢隱身", detail: "可躲藏避開怪物視線" },
+          { icon: "🎥", name: "動態鏡頭跟隨", detail: "螢幕跟著角色平滑移動" },
+          { icon: "🗺️", name: "全景雷達小地圖", detail: "右上角即時顯示敵我位置" }
+        ],
+        insight: "鏡頭跟隨與雷達讓小迷宮瞬間變成大世界冒險！"
+      },
+      3: {
+        title: "3. 角色外觀與紙娃娃換裝（美術細節）",
+        tag: "紙娃娃系統",
+        badge: "階段 3 / 5",
+        desc: "打造了獨一無二的角色視覺形象，並支援豐富的換裝自訂能力：",
+        features: [
+          { icon: "💀", name: "立體骷髏面孔", detail: "眼眶、發光瞳孔與倒三角牙齒" },
+          { icon: "🪖", name: "多彩全身裝備", detail: "頭套、衣服、褲子、鞋子、武器、盾牌" },
+          { icon: "🚶", name: "直立站姿", detail: "正面顯示角色與裝備" },
+          { icon: "🛌", name: "橫躺姿態", detail: "可自由切換動作形態" }
+        ],
+        insight: "紙娃娃系統讓玩家有強烈的角色歸屬感！"
+      },
+      4: {
+        title: "4. 夥伴與戰鬥系統（豐富互動）",
+        tag: "軍團協力",
+        badge: "階段 4 / 5",
+        desc: "獨木難支？你為遊戲加入了強力的戰鬥小隊！",
+        features: [
+          { icon: "🤝", name: "骷髏夥伴軍團", detail: "自動跟隨並保護主角" },
+          { icon: "⚔️", name: "主動幫打怪", detail: "夥伴會鎖定附近敵人攻擊" },
+          { icon: "🛡️", name: "夥伴裝備共享", detail: "可以幫夥伴穿上武器與防具" }
+        ],
+        insight: "夥伴軍團大幅增加了戰鬥的熱鬧感與策略性！"
+      },
+      5: {
+        title: "5. 遊戲平衡調整（耐玩度優化）",
+        tag: "數值平衡",
+        badge: "階段 5 / 5",
+        desc: "發現「一下就被打死」後，進行精準的遊戲體驗優化：",
+        features: [
+          { icon: "✨", name: "1.5秒受傷無敵", detail: "閃爍保護，避免連擊秒殺" },
+          { icon: "❤️", name: "胸甲生命加成", detail: "穿上鋼鐵護胸 HP 提升至 15" },
+          { icon: "🎯", name: "AI 難度調整", detail: "可自訂 1~10 級對手反應速度" }
+        ],
+        insight: "合理的無敵時間與 HP 成長，讓遊戲變得非常好玩不挫折！"
+      }
+    };
+
+    /* --------------------------------------------------------------------------
+       2. EVOLUTION STAGE UI SWITCHING
+       -------------------------------------------------------------------------- */
+    function selectEvolutionStage(stageNum) {
+      // Update Tab UI styles
+      for(let i=1; i<=5; i++) {
+        const btn = document.getElementById(`stage-btn-${i}`);
+        if (i === stageNum) {
+          btn.className = "tab-btn active px-4 py-2 rounded-xl border border-sky-600 text-xs sm:text-sm font-bold transition flex items-center gap-1.5 bg-sky-600 text-white shadow-md";
+        } else {
+          btn.className = "tab-btn px-4 py-2 rounded-xl border border-slate-300 text-xs sm:text-sm font-bold transition flex items-center gap-1.5 bg-white text-slate-600 hover:border-sky-400";
+        }
+      }
+
+      // Populate Card Details
+      const data = stageData[stageNum];
+      document.getElementById('stage-badge').innerText = data.badge;
+      document.getElementById('stage-tag').innerText = data.tag;
+      document.getElementById('stage-title').innerText = data.title;
+      document.getElementById('stage-desc').innerText = data.desc;
+      document.getElementById('stage-insight').innerText = data.insight;
+
+      const featuresContainer = document.getElementById('stage-features');
+      featuresContainer.innerHTML = '';
+      data.features.forEach(f => {
+        const item = document.createElement('div');
+        item.className = "p-3 bg-slate-50 rounded-xl border border-slate-200/80 flex items-start space-x-2.5";
+        item.innerHTML = `
+          <span class="text-xl">${f.icon}</span>
+          <div>
+            <div class="text-xs font-bold text-slate-800">${f.name}</div>
+            <div class="text-[11px] text-slate-500">${f.detail}</div>
+          </div>
+        `;
+        featuresContainer.appendChild(item);
+      });
+    }
+
+    /* --------------------------------------------------------------------------
+       3. CHART.JS CANVAS INITIALIZATION
+       -------------------------------------------------------------------------- */
+    // Chart 1: Donut Chart for Attributes
+    const ctxAttr = document.getElementById('attributeChart').getContext('2d');
+    new Chart(ctxAttr, {
+      type: 'doughnut',
+      data: {
+        labels: ['🔥 火屬性(燃燒)', '⚡ 電屬性(扣血)', '❄️ 冰屬性(定格5s)', '💨 加速(往前衝)'],
+        datasets: [{
+          data: [25, 25, 25, 25],
+          backgroundColor: ['#ef4444', '#a855f7', '#06b6d4', '#eab308'],
+          borderWidth: 2,
+          borderColor: '#ffffff'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              boxWidth: 12,
+              font: { size: 10 }
+            }
+          }
+        }
+      }
+    });
+
+    // Chart 2: Evolution Complexity Growth Curve
+    const ctxEvolution = document.getElementById('evolutionChart').getContext('2d');
+    new Chart(ctxEvolution, {
+      type: 'line',
+      data: {
+        labels: ['Stage 1', 'Stage 2', 'Stage 3', 'Stage 4', 'Stage 5'],
+        datasets: [{
+          label: '遊戲好玩度與豐富度',
+          data: [20, 45, 65, 85, 98],
+          borderColor: '#0284c7',
+          backgroundColor: 'rgba(2, 132, 199, 0.1)',
+          fill: true,
+          tension: 0.35,
+          pointBackgroundColor: '#f59e0b',
+          pointRadius: 6,
+          pointHoverRadius: 8
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 100,
+            ticks: {
+              callback: function(value) { return value + '%'; },
+              font: { size: 10 }
+            }
+          },
+          x: {
+            ticks: { font: { size: 10 } }
+          }
+        },
+        plugins: {
+          legend: { display: false }
+        }
+      }
+    });
+
+    /* --------------------------------------------------------------------------
+       4. PROMPT CASE SWITCHER & SANDBOX
+       -------------------------------------------------------------------------- */
+    function showPromptCase(caseNum) {
+      const insightBox = document.getElementById('case-insight-box');
+      if (caseNum === 1) {
+        insightBox.innerHTML = `<b>案例 1 解析：</b> 提出「螢幕要跟著角色移動」，精準抓出鏡頭問題，讓 AI 實作動態 Lerp 鏡頭跟隨！`;
+      } else if (caseNum === 2) {
+        insightBox.innerHTML = `<b>案例 2 解析：</b> 提出「頭盔不想要遮到眼睛」，指出美術穿模問題，使 AI 調整了圖層畫布順序！`;
+      } else if (caseNum === 3) {
+        insightBox.innerHTML = `<b>案例 3 解析：</b> 提出「我不能一下就被打死」，指出數值問題，成功加入 1.5 秒無敵閃爍時間！`;
+      } else if (caseNum === 4) {
+        insightBox.innerHTML = `<b>案例 4 解析：</b> 提出「武器顏色要不一樣，夥伴也能裝備」，成功擴充裝備系統與小隊夥伴共享！`;
+      }
+    }
+
+    const sandboxData = {
+      "too-hard": {
+        bad: "「遊戲好難，改簡單一點」",
+        good: "「我不能一下就被打死，請幫我加入 1.5 秒受傷無敵閃爍保護時間！」",
+        tip: "💡 秘笈解析：明確指出『受傷無敵閃爍保護』與『1.5秒』，AI 能直接寫出準確代碼！"
+      },
+      "visual-gear": {
+        bad: "「劍太醜了，換好看一點」",
+        good: "「請幫我設計一把會發出紫光的雷霆聖劍，攻擊時要帶有炫酷的刀芒特效！」",
+        tip: "💡 秘笈解析：使用『紫光』、『雷霆聖劍』與『刀芒特效』，給予 AI 具體的視覺形容！"
+      },
+      "camera-move": {
+        bad: "「我看不到主角了」",
+        good: "「主角跑動時螢幕要跟著角色移動，把角色保持在畫面中央！」",
+        tip: "💡 秘笈解析：描述希望發生的畫面行為（動態鏡頭跟隨），AI 就知道要加入 Camera 跟隨機制！"
+      }
+    };
+
+    function updatePromptSandbox() {
+      const issueKey = document.getElementById('sb-issue').value;
+      const data = sandboxData[issueKey];
+      document.getElementById('sb-bad-text').innerText = data.bad;
+      document.getElementById('sb-good-text').innerText = data.good;
+      document.getElementById('sb-tip').innerText = data.tip;
+    }
+
+    function copyGoodPrompt() {
+      const text = document.getElementById('sb-good-text').innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        alert('🎉 已複製優秀 Prompt！你可以直接貼給 AI 試試看：\n' + text);
+      });
+    }
+
+    function scrollToSection(id) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    // Initialize Default States
+    selectEvolutionStage(1);
+    updatePromptSandbox();
+  </script>
+</body>
+</html>
