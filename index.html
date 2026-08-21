@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>李桓岳</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #faf3e3;
+    --surface: #fffcf3;
+    --surface-raised: #ffffff;
+    --ink: #2b2117;
+    --ink-soft: #71624c;
+    --ink-faint: #a3937a;
+    --line: #e8d9b8;
+    --line-soft: #f1e6cc;
+    --accent: #b8791f;
+    --accent-ink: #7a4e13;
+    --accent-soft: #f4e2b3;
+    --accent-soft-line: #e2c67f;
+    --shadow: 0 1px 2px rgba(43,33,23,0.05), 0 8px 24px rgba(43,33,23,0.07);
+  }
+  /* 固定使用淺底深字，不隨系統深色模式切換 */
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Work Sans', 'Noto Sans TC', system-ui, sans-serif;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3 {
+    font-family: 'Fraunces', 'Noto Serif TC', serif;
+    font-weight: 600;
+    text-wrap: balance;
+    color: var(--ink);
+    margin: 0;
+  }
+  .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  a { color: var(--accent-ink); }
+
+  .shell { max-width: 1040px; margin: 0 auto; padding: 0 28px 100px; }
+
+  /* ---- hero ---- */
+  .hero {
+    padding: 60px 0 40px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 40px;
+    align-items: center;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 56px;
+  }
+  .hero-photo {
+    width: 148px;
+    height: 148px;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--line-soft);
+    flex-shrink: 0;
+  }
+  .hero-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .hero-name { font-size: clamp(1.9rem, 4vw, 2.5rem); line-height: 1.1; }
+  .hero-title {
+    margin-top: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    letter-spacing: 0.02em;
+    color: var(--accent-ink);
+  }
+  .hero-pitch {
+    margin-top: 14px;
+    font-size: 1.08rem;
+    color: var(--ink-soft);
+    max-width: 56ch;
+  }
+  .hero-meta {
+    margin-top: 18px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: center;
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+  }
+  .hero-meta a { color: var(--ink-soft); text-decoration: none; }
+  .hero-meta a:hover { color: var(--accent-ink); }
+  .social-row { display: flex; gap: 10px; }
+  .social-icon {
+    width: 34px; height: 34px;
+    border-radius: 9px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink-soft);
+    text-decoration: none;
+    transition: border-color .15s ease, color .15s ease;
+  }
+  .social-icon:hover { border-color: var(--accent-soft-line); color: var(--accent-ink); }
+  .social-icon svg { width: 16px; height: 16px; }
+
+  /* ---- stat bar ---- */
+  .stat-bar {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 14px;
+    margin-bottom: 64px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--line-soft);
+    border-radius: 12px;
+    padding: 18px 16px;
+    text-align: center;
+    box-shadow: var(--shadow);
+  }
+  .stat-card .num {
+    font-family: 'Fraunces', serif;
+    font-size: 1.55rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
+  }
+  .stat-card .label {
+    margin-top: 4px;
+    font-size: 0.74rem;
+    color: var(--ink-faint);
+  }
+
+  /* ---- sections ---- */
+  section.block { margin-bottom: 68px; }
+  .block-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 8px; }
+  .block-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.74rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+    margin-bottom: 10px;
+    display: block;
+  }
+  .block-head h2 { font-size: 1.65rem; }
+  .block-sub { color: var(--ink-soft); font-size: 0.98rem; max-width: 62ch; margin: 10px 0 26px; }
+
+  .prose ul {
+    margin: 0; padding-left: 1.15em;
+    display: flex; flex-direction: column; gap: 10px;
+    max-width: 68ch; color: var(--ink); font-size: 1rem;
+  }
+  .prose ul li::marker { color: var(--accent-ink); }
+
+  /* ai section layout */
+  .ai-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 32px; align-items: start; }
+  @media (max-width: 780px) { .ai-grid { grid-template-columns: 1fr; } }
+
+  .chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+  .chip {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.76rem;
+    padding: 6px 12px;
+    border-radius: 6px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    color: var(--ink-soft);
+  }
+
+  .linkout-card {
+    display: block;
+    background: var(--accent-soft);
+    border: 1px solid var(--accent-soft-line);
+    border-radius: 14px;
+    padding: 26px;
+    text-decoration: none;
+    transition: transform .15s ease;
+  }
+  .linkout-card:hover { transform: translateY(-2px); }
+  .linkout-card .kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--accent-ink);
+    display: block;
+    margin-bottom: 10px;
+  }
+  .linkout-card h3 { font-size: 1.2rem; color: var(--accent-ink); margin-bottom: 8px; }
+  .linkout-card p { margin: 0; font-size: 0.92rem; color: var(--ink); }
+  .linkout-card .go { margin-top: 14px; font-family:'JetBrains Mono',monospace; font-size:0.8rem; color:var(--accent-ink); }
+
+  /* project cards (modal triggers) */
+  .project-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
+  .project-card {
+    display: block; width: 100%; text-align: left; font: inherit; color: inherit; cursor: pointer;
+    background: var(--surface);
+    border: 1px solid var(--line-soft);
+    border-radius: 14px;
+    padding: 24px;
+    box-shadow: var(--shadow);
+    transition: transform .15s ease, border-color .15s ease;
+  }
+  .project-card:hover, .project-card:focus-visible { transform: translateY(-2px); border-color: var(--accent-soft-line); outline: none; }
+  .project-card .kicker {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: .04em;
+    color: var(--accent-ink); display: flex; justify-content: space-between; margin-bottom: 10px;
+  }
+  .project-card .peek { text-transform: none; letter-spacing: 0; color: var(--ink-faint); opacity: 0; transition: opacity .15s ease; }
+  .project-card:hover .peek, .project-card:focus-visible .peek { opacity: 1; }
+  .project-card h4 { font-family: 'Fraunces', serif; font-size: 1.12rem; margin-bottom: 8px; }
+  .project-card p { margin: 0; font-size: 0.9rem; color: var(--ink-soft); }
+
+  /* skills */
+  .skill-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 28px; }
+  .skill-group h4 {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; text-transform: uppercase; letter-spacing: .03em;
+    color: var(--ink-faint); font-weight: 500; margin-bottom: 12px;
+  }
+
+  .more-about-me {
+    margin-top: 40px;
+    background: var(--surface);
+    border: 1px solid var(--line-soft);
+    border-radius: 16px;
+    padding: 30px;
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 26px;
+    align-items: center;
+  }
+  @media (max-width: 700px) { .more-about-me { grid-template-columns: 1fr; } }
+  .more-about-me img { width: 100%; border-radius: 12px; display: block; box-shadow: var(--shadow); }
+  .more-about-me h4 { font-size: 1.05rem; margin-bottom: 10px; }
+  .more-about-me p { margin: 0; font-size: 0.94rem; color: var(--ink-soft); }
+
+  /* education */
+  .edu-list { display: flex; flex-direction: column; gap: 22px; }
+  .edu-item { border-left: 2px solid var(--accent-soft-line); padding-left: 18px; }
+  .edu-item .school { font-family: 'Fraunces', serif; font-size: 1.05rem; }
+  .edu-item .degree { font-size: 0.85rem; color: var(--ink-faint); margin-top: 2px; }
+  .edu-item .detail { font-size: 0.9rem; color: var(--ink-soft); margin-top: 8px; max-width: 62ch; }
+
+  /* secondary entries */
+  .secondary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+  .secondary-card {
+    border: 1px dashed var(--line);
+    border-radius: 14px;
+    padding: 22px;
+    color: var(--ink-faint);
+  }
+  .secondary-card h4 { font-size: 1rem; color: var(--ink-soft); margin-bottom: 6px; }
+  .secondary-card .badge {
+    display: inline-block; margin-top: 10px;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.68rem;
+    padding: 3px 9px; border-radius: 100px;
+    background: var(--line-soft); color: var(--ink-faint);
+  }
+
+  footer {
+    padding-top: 32px; border-top: 1px solid var(--line);
+    color: var(--ink-faint); font-size: 0.82rem;
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+    align-items: center;
+  }
+
+  /* modal (reused pattern) */
+  .modal-backdrop {
+    position: fixed; inset: 0; background: rgba(20,15,8,0.5);
+    display: flex; align-items: center; justify-content: center; padding: 24px; z-index: 100;
+    opacity: 0; transition: opacity .18s ease;
+  }
+  .modal-backdrop[hidden] { display: none; }
+  .modal-backdrop.is-open { opacity: 1; }
+  .modal {
+    background: var(--surface-raised); border: 1px solid var(--line-soft); border-radius: 16px;
+    max-width: 560px; width: 100%; max-height: min(80vh, 700px); overflow-y: auto;
+    padding: 34px 34px 30px; box-shadow: 0 20px 60px rgba(43,33,23,0.25);
+    position: relative; transform: translateY(10px) scale(.98); transition: transform .18s ease;
+  }
+  .modal-backdrop.is-open .modal { transform: translateY(0) scale(1); }
+  @media (prefers-reduced-motion: reduce) { .modal-backdrop, .modal { transition: none; } }
+  .modal-close {
+    position: absolute; top: 18px; right: 18px; width: 32px; height: 32px; border-radius: 8px;
+    border: 1px solid var(--line); background: var(--surface); color: var(--ink-soft);
+    font-size: 1.1rem; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  }
+  .modal-close:hover { border-color: var(--accent-soft-line); color: var(--accent-ink); }
+  .modal-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .modal .kicker { font-family:'JetBrains Mono',monospace; font-size:0.72rem; text-transform:uppercase; letter-spacing:.04em; color:var(--accent-ink); display:block; margin-bottom:10px; }
+  .modal h3 { font-size: 1.3rem; margin-bottom: 14px; padding-right: 30px; }
+  .modal-body ul { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column; gap: 10px; font-size: 0.94rem; color: var(--ink); }
+  .modal-body ul li::marker { color: var(--accent-ink); }
+  .modal-body p { font-size: 0.94rem; color: var(--ink); margin: 0 0 14px; }
+  .modal-body h5 {
+    font-family:'JetBrains Mono',monospace; font-size:0.76rem; text-transform:uppercase; letter-spacing:.03em;
+    color: var(--ink-faint); font-weight: 500; margin: 20px 0 10px;
+  }
+  .modal-body h5:first-child { margin-top: 0; }
+  .modal-photo { width: 100%; border-radius: 10px; margin-top: 18px; display: block; }
+
+  @media (max-width: 620px) {
+    .shell { padding: 0 18px 72px; }
+    .hero { grid-template-columns: 1fr; text-align: left; padding-top: 44px; }
+    .stat-bar { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+
+<div class="shell">
+
+  <header class="hero">
+    <div class="hero-photo"><img src="assets/images/headshot.jpg" alt="李桓岳"></div>
+    <div>
+      <h1 class="hero-name">李桓岳</h1>
+      <div class="hero-title">資深專案經理・PMP・水利與環境工程領域</div>
+      <p class="hero-pitch">12 年公部門工程顧問資歷，主導逾 18 項大型標案；近年跨進數位轉型，用 AI Agent 與自動化工作流把團隊效能推進 25% 以上。</p>
+      <div class="hero-meta">
+        <span>台北市，台灣</span>
+        <a href="mailto:lihuanyueh@gmail.com">lihuanyueh@gmail.com</a>
+        <div class="social-row">
+          <a class="social-icon" href="https://www.linkedin.com/in/%E6%A1%93%E5%B2%B3-%E6%9D%8E-93084673/?locale=en" target="_blank" rel="noopener" title="LinkedIn" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.56v-5.58c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.68H9.34V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.38-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.07 2.07 0 1 1 0-4.13 2.07 2.07 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45z"/></svg></a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="stat-bar">
+    <div class="stat-card"><div class="num mono">12+</div><div class="label">年資歷</div></div>
+    <div class="stat-card"><div class="num mono">27</div><div class="label">參與專案</div></div>
+    <div class="stat-card"><div class="num mono">18</div><div class="label">主持專案</div></div>
+    <div class="stat-card"><div class="num mono">2億+</div><div class="label">累計執行金額</div></div>
+    <div class="stat-card"><div class="num mono">25%</div><div class="label">AI導入效率提升</div></div>
+  </div>
+
+  <section class="block">
+    <span class="block-eyebrow">核心能力</span>
+    <div class="block-head"><h2>用 AI 重塑專案管理</h2></div>
+    <p class="block-sub">在傳統工程顧問業裡，主動把 LLM 和自動化工作流帶進團隊日常，是這幾年最想被看見的一塊。</p>
+
+    <div class="ai-grid">
+      <div class="prose">
+        <ul>
+          <li>擔任公司數位轉型專案負責人，跨行政與各區域團隊組成 AI 應用小組，整體工作效能提升超過 20%，獲中小企業網路大學校採訪報導。</li>
+          <li>部門內導入 AI Agent 應用，每月為團隊省下超過 20 人日的人力，效率提升 25%。</li>
+          <li>產出成果包含自動化月報、標案追蹤系統、競業分析報告、內部數據自動化工具等，多項已從單一 AI 廠商工具轉為地端建置，降低對特定服務商的依賴。</li>
+        </ul>
+        <div class="chip-row">
+          <span class="chip">Claude Code</span>
+          <span class="chip">Gemini</span>
+          <span class="chip">ChatGPT</span>
+          <span class="chip">Perplexity</span>
+          <span class="chip">Prompt Engineering</span>
+          <span class="chip">工作流分析</span>
+          <span class="chip">工作 SOP 建置</span>
+        </div>
+      </div>
+
+      <a class="linkout-card" href="cases/index.html">
+        <span class="kicker">延伸閱讀</span>
+        <h3>看我怎麼跟 AI 協作</h3>
+        <p>案例集收錄實際的協作過程——痛點、prompt 怎麼下、踩過的坑、做出的成果，不只是結論。</p>
+        <div class="go">前往案例集 →</div>
+      </a>
+    </div>
+  </section>
+
+  <section class="block">
+    <span class="block-eyebrow">執行過的專案</span>
+    <div class="block-head"><h2>用方法論說故事，不揭露機敏內容</h2></div>
+    <p class="block-sub">政府標案涉及機關與合約資訊，不在此逐一列出；AI工具類的案例（標案追蹤助手、競業分析報告）改放進<a href="cases/index.html">AI協作案例集</a>，其餘專案成果陸續整理中。</p>
+
+    <div class="project-grid">
+      <button type="button" class="project-card" data-modal="modal-transform" aria-haspopup="dialog">
+        <span class="kicker">組織推動<span class="peek">點看細節 ↗</span></span>
+        <h4>內部數位轉型推動</h4>
+        <p>帶著跨部門團隊一起導入 AI，不是自己單打獨鬥。</p>
+      </button>
+      <div class="secondary-card">
+        <h4>更多專案</h4>
+        <p>成果整理中，之後陸續補上。</p>
+        <span class="badge">即將推出</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <span class="block-eyebrow">專業能力</span>
+    <div class="block-head"><h2>技能與經驗</h2></div>
+
+    <div class="skill-groups">
+      <div class="skill-group">
+        <h4>專案管理</h4>
+        <div class="chip-row">
+          <span class="chip">PMP</span>
+          <span class="chip">Agile / Waterfall</span>
+          <span class="chip">利益關係人期望管理</span>
+          <span class="chip">範疇與變更控制</span>
+          <span class="chip">期程及品質管理</span>
+          <span class="chip">風險管理</span>
+        </div>
+      </div>
+      <div class="skill-group">
+        <h4>AI／科技應用</h4>
+        <div class="chip-row">
+          <span class="chip">LLM 應用</span>
+          <span class="chip">Prompt Engineering</span>
+          <span class="chip">需求訪談</span>
+          <span class="chip">工作流分析</span>
+          <span class="chip">無人機操作</span>
+          <span class="chip">空拍 DEM 建模</span>
+        </div>
+      </div>
+      <div class="skill-group">
+        <h4>政府業務</h4>
+        <div class="chip-row">
+          <span class="chip">政府採購法</span>
+          <span class="chip">標案需求書撰擬</span>
+          <span class="chip">服務建議書撰寫</span>
+          <span class="chip">評選簡報</span>
+          <span class="chip">成本結構估算</span>
+          <span class="chip">專案驗收</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="more-about-me">
+      <img src="assets/images/team.jpg" alt="傑美工程團隊">
+      <div>
+        <h4>簡報表達與團隊合作</h4>
+        <p>發表多篇研討會論文，曾受邀至台北自來水事業處、中興大學進行專業分享。橄欖球校隊、鐵人三項與馬拉松運動員，這份對長期目標的耐力，也是帶專案的方式。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <span class="block-eyebrow">學歷</span>
+    <div class="block-head"><h2>教育背景</h2></div>
+    <div class="edu-list">
+      <div class="edu-item">
+        <div class="school">國立台灣大學 土木工程所營建管理組</div>
+        <div class="degree mono">碩士・2010 – 2012</div>
+        <div class="detail">碩士論文：《跨國工程顧問公司在中國之進入模式策略：制度理論觀點》，深入分析企業跨市場擴展、合規與組織制度調適策略。</div>
+      </div>
+      <div class="edu-item">
+        <div class="school">國立中央大學 土木工程學系</div>
+        <div class="degree mono">學士・2006 – 2010</div>
+        <div class="detail">除土木專業科目外，另副修工程管理學程，跨學院修讀統計學與經濟學等核心課程。</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <span class="block-eyebrow">認識更多的我</span>
+    <div class="block-head"><h2>延伸閱讀</h2></div>
+    <div class="secondary-grid">
+      <div class="secondary-card">
+        <h4>教育理念分享</h4>
+        <p>關於學習與成長的一些想法。</p>
+        <span class="badge">即將推出</span>
+      </div>
+      <div class="secondary-card">
+        <h4>信仰經歷分享</h4>
+        <p>關於信仰路上的一些記錄。</p>
+        <span class="badge">即將推出</span>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>李桓岳 · 資深專案經理</span>
+    <span class="mono">最後更新日期：2026 年 8 月 21 日</span>
+  </footer>
+</div>
+
+<div class="modal-backdrop" id="modal-transform" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="d-title">
+    <button type="button" class="modal-close" aria-label="關閉">×</button>
+    <span class="kicker">組織推動</span>
+    <h3 id="d-title">內部數位轉型推動</h3>
+    <div class="modal-body">
+      <p>擔任公司數位轉型專案負責人，跨行政、各區域專案團隊組成 AI 應用小組，整體提高工作效能超過 20%，並獲中小企業網路大學校採訪報導。</p>
+      <img class="modal-photo" src="assets/images/team.jpg" alt="傑美工程團隊導入AI">
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var modals = document.querySelectorAll('.modal-backdrop');
+    var triggers = document.querySelectorAll('[data-modal]');
+    var activeTrigger = null;
+
+    function openModal(id, trigger) {
+      var backdrop = document.getElementById(id);
+      if (!backdrop) return;
+      backdrop.hidden = false;
+      requestAnimationFrame(function () { backdrop.classList.add('is-open'); });
+      var closeBtn = backdrop.querySelector('.modal-close');
+      if (closeBtn) closeBtn.focus();
+      activeTrigger = trigger;
+      document.addEventListener('keydown', onKeydown);
+    }
+    function closeModal(backdrop) {
+      backdrop.classList.remove('is-open');
+      document.removeEventListener('keydown', onKeydown);
+      window.setTimeout(function () { backdrop.hidden = true; }, 180);
+      if (activeTrigger) activeTrigger.focus();
+    }
+    function onKeydown(e) {
+      if (e.key === 'Escape') {
+        modals.forEach(function (m) { if (!m.hidden) closeModal(m); });
+      }
+    }
+    triggers.forEach(function (t) {
+      t.addEventListener('click', function () { openModal(t.getAttribute('data-modal'), t); });
+    });
+    modals.forEach(function (m) {
+      m.addEventListener('click', function (e) { if (e.target === m) closeModal(m); });
+      var closeBtn = m.querySelector('.modal-close');
+      if (closeBtn) closeBtn.addEventListener('click', function () { closeModal(m); });
+    });
+  })();
+</script>
+
+</body>
+</html>

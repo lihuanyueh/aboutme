@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Leo的AI協作案例集</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #faf3e3;
+    --surface: #fffcf3;
+    --surface-raised: #ffffff;
+    --ink: #2b2117;
+    --ink-soft: #71624c;
+    --ink-faint: #a3937a;
+    --line: #e8d9b8;
+    --line-soft: #f1e6cc;
+    --accent: #b8791f;
+    --accent-ink: #7a4e13;
+    --accent-soft: #f4e2b3;
+    --accent-soft-line: #e2c67f;
+    --shadow: 0 1px 2px rgba(43,33,23,0.05), 0 8px 24px rgba(43,33,23,0.07);
+  }
+
+  /* 固定使用淺底深字，不隨系統深色模式切換 */
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Work Sans', 'Noto Sans TC', system-ui, sans-serif;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3 {
+    font-family: 'Fraunces', 'Noto Serif TC', serif;
+    font-weight: 600;
+    text-wrap: balance;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  a { color: inherit; text-decoration: none; }
+
+  .shell {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 0 28px 100px;
+  }
+
+  .topnav {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 28px 28px 0;
+  }
+  .topnav a {
+    text-decoration: none;
+    color: var(--ink-soft);
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.15s ease;
+  }
+  .topnav a:hover { color: var(--accent-ink); }
+
+  header.intro { padding-top: 36px; }
+
+  header.intro {
+    padding-bottom: 44px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 44px;
+  }
+  .eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+    margin-bottom: 18px;
+  }
+  .eyebrow::before {
+    content: "";
+    width: 22px;
+    height: 1px;
+    background: var(--accent);
+  }
+  header.intro h1 {
+    font-size: clamp(2rem, 4.6vw, 2.9rem);
+    line-height: 1.2;
+    max-width: 18ch;
+  }
+  header.intro p {
+    margin-top: 20px;
+    font-size: 1.05rem;
+    color: var(--ink-soft);
+    max-width: 58ch;
+  }
+
+  .stats-row {
+    display: flex;
+    gap: 28px;
+    margin-top: 30px;
+    flex-wrap: wrap;
+  }
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .stat .num {
+    font-family: 'Fraunces', serif;
+    font-size: 1.6rem;
+    color: var(--ink);
+  }
+  .stat .label {
+    font-size: 0.75rem;
+    color: var(--ink-faint);
+    letter-spacing: 0.02em;
+  }
+
+  .list-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 20px;
+  }
+
+  .entries {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .entry-card {
+    display: block;
+    background: var(--surface);
+    border: 1px solid var(--line-soft);
+    border-radius: 14px;
+    padding: 28px 30px;
+    box-shadow: var(--shadow);
+    transition: transform 0.16s ease, border-color 0.16s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .entry-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent-soft-line);
+  }
+  .entry-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 12px;
+  }
+  .entry-index {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--accent-ink);
+    background: var(--accent-soft);
+    border: 1px solid var(--accent-soft-line);
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .entry-date {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--ink-faint);
+  }
+  .entry-card h2 {
+    font-size: 1.4rem;
+    margin-bottom: 8px;
+  }
+  .entry-card .desc {
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+    max-width: 62ch;
+    margin-bottom: 18px;
+  }
+  .entry-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+  .tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    padding: 4px 10px;
+    border-radius: 100px;
+    border: 1px solid var(--line);
+    color: var(--ink-soft);
+    background: var(--bg);
+  }
+  .tag.accent {
+    border-color: var(--accent-soft-line);
+    background: var(--accent-soft);
+    color: var(--accent-ink);
+  }
+  .entry-arrow {
+    margin-left: auto;
+    font-size: 0.85rem;
+    color: var(--accent-ink);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .placeholder-card {
+    border: 1px dashed var(--line);
+    border-radius: 14px;
+    padding: 24px 30px;
+    color: var(--ink-faint);
+    font-size: 0.92rem;
+    background: transparent;
+  }
+  .placeholder-card .ph-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .placeholder-card h3 {
+    font-size: 1.1rem;
+    color: var(--ink-soft);
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+  }
+  .placeholder-card .badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    padding: 3px 9px;
+    border-radius: 100px;
+    background: var(--line-soft);
+    color: var(--ink-faint);
+    flex-shrink: 0;
+  }
+  .placeholder-card p { margin: 8px 0 0; }
+
+  footer {
+    margin-top: 60px;
+    padding-top: 28px;
+    border-top: 1px solid var(--line);
+    color: var(--ink-faint);
+    font-size: 0.82rem;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  @media (max-width: 600px) {
+    .shell { padding: 0 18px 72px; }
+    .topnav { padding: 22px 18px 0; }
+    .entry-card { padding: 22px 20px; }
+  }
+</style>
+</head>
+<body>
+
+
+<div class="topnav">
+  <a href="../index.html">← 回首頁</a>
+</div>
+
+<div class="shell">
+  <header class="intro">
+    <h1>Leo 的 AI 協作案例集</h1>
+    <p>把每一次跟 Claude 協作解決問題的過程，整理成別人也看得懂、學得到東西的案例——痛點是什麼、過程怎麼一步步修正、做出了什麼、還能往哪裡延伸。</p>
+    <div class="stats-row">
+      <div class="stat"><span class="num mono">01</span><span class="label">篇案例</span></div>
+    </div>
+  </header>
+
+  <div class="list-label">案例列表</div>
+  <div class="entries">
+    <a class="entry-card" href="case-01.html">
+      <div class="entry-top">
+        <span class="entry-index mono">01</span>
+        <span class="entry-date">2026 · 08</span>
+      </div>
+      <h2>打造能自我複製的案例產生器</h2>
+      <p class="desc">紀錄「怎麼把一段 Claude 協作整理成案例分享」這件事本身——用打造這套機制的過程，示範它產出的成果長什麼樣子。</p>
+      <div class="entry-tags">
+        <span class="tag accent">Skill</span>
+        <span class="tag">網頁</span>
+        <span class="tag">方法論</span>
+        <span class="entry-arrow">閱讀案例 →</span>
+      </div>
+    </a>
+
+    <div class="placeholder-card">
+      <div class="ph-top"><h3>政府標案追蹤助手</h3><span class="badge">即將推出</span></div>
+      <p>把每日人工盯標案的流程，改成關鍵字自動蒐尋＋分流通知——AI協作的完整過程之後補上。</p>
+    </div>
+
+    <div class="placeholder-card">
+      <div class="ph-top"><h3>競業分析報告</h3><span class="badge">即將推出</span></div>
+      <p>把耗時的競爭對手決標資料比對，變成可持續更新的分析基礎——AI協作的完整過程之後補上。</p>
+    </div>
+  </div>
+
+  <footer>
+    <span>Leo 的專案經驗分享</span>
+    <span class="mono">最後更新日期：2026 年 8 月 21 日</span>
+  </footer>
+</div>
+
+</body>
+</html>
