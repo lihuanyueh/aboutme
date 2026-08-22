@@ -1,0 +1,959 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>從手動截圖到自動化月報</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #faf3e3;
+    --surface: #fffcf3;
+    --surface-raised: #ffffff;
+    --ink: #2b2117;
+    --ink-soft: #71624c;
+    --ink-faint: #a3937a;
+    --line: #e8d9b8;
+    --line-soft: #f1e6cc;
+    --accent: #b8791f;
+    --accent-ink: #7a4e13;
+    --accent-soft: #f4e2b3;
+    --accent-soft-line: #e2c67f;
+    --shadow: 0 1px 2px rgba(43,33,23,0.05), 0 8px 24px rgba(43,33,23,0.07);
+  }
+
+  /* 固定使用淺底深字，不隨系統深色模式切換 */
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Work Sans', 'Noto Sans TC', system-ui, sans-serif;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3 {
+    font-family: 'Fraunces', 'Noto Serif TC', serif;
+    font-weight: 600;
+    text-wrap: balance;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  .mono {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+  }
+
+  a { color: var(--accent-ink); }
+
+  .shell {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0 28px 96px;
+  }
+
+  /* ---- top nav ---- */
+  .topnav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 28px 28px 0;
+  }
+  .topnav a {
+    text-decoration: none;
+    color: var(--ink-soft);
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.15s ease;
+  }
+  .topnav a:hover { color: var(--accent-ink); }
+
+  /* ---- header ---- */
+  .entry-header {
+    padding: 56px 0 44px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 48px;
+  }
+  .eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+    margin-bottom: 18px;
+  }
+  .eyebrow::before {
+    content: "";
+    width: 22px;
+    height: 1px;
+    background: var(--accent);
+  }
+  .entry-header h1 {
+    font-size: clamp(2rem, 4.4vw, 3rem);
+    line-height: 1.15;
+    max-width: 20ch;
+  }
+  .tldr {
+    margin-top: 22px;
+    font-size: 1.08rem;
+    color: var(--ink-soft);
+    max-width: 62ch;
+  }
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 28px;
+  }
+  .tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.02em;
+    padding: 5px 11px;
+    border-radius: 100px;
+    border: 1px solid var(--line);
+    color: var(--ink-soft);
+    background: var(--surface);
+  }
+  .tag.accent {
+    border-color: var(--accent-soft-line);
+    background: var(--accent-soft);
+    color: var(--accent-ink);
+  }
+
+  .for-who {
+    margin-top: 26px;
+    padding: 16px 20px;
+    background: var(--surface);
+    border: 1px solid var(--line-soft);
+    border-radius: 10px;
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+    max-width: 62ch;
+  }
+  .for-who strong { color: var(--ink); font-weight: 600; }
+
+  /* ---- article layout ---- */
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  section.block { margin-bottom: 64px; }
+
+  .block-head {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin-bottom: 22px;
+  }
+  .block-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--accent-ink);
+    background: var(--accent-soft);
+    border: 1px solid var(--accent-soft-line);
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .block-head h2 {
+    font-size: 1.5rem;
+  }
+
+  .prose {
+    max-width: 68ch;
+    color: var(--ink);
+    font-size: 1.02rem;
+  }
+  .prose p + p { margin-top: 1em; }
+  .prose ul {
+    margin: 0;
+    padding-left: 1.15em;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .prose p + ul { margin-top: 12px; }
+  .prose ul li { padding-left: 4px; }
+  .prose ul li::marker { color: var(--accent-ink); }
+
+  /* ---- sub-groups inside 逐步研討 ---- */
+  .subgroup {
+    margin-top: 34px;
+    padding-top: 28px;
+    border-top: 1px dashed var(--line);
+  }
+  .subgroup:first-child { margin-top: 0; padding-top: 0; border-top: none; }
+  .subgroup h3 {
+    font-size: 1.02rem;
+    font-family: 'Work Sans', sans-serif;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 10px;
+  }
+  .subgroup .prose { font-size: 0.98rem; }
+
+  /* prompt transcript */
+  .transcript {
+    margin-top: 14px;
+    border-left: 2px solid var(--line);
+    padding-left: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .transcript .line {
+    font-size: 0.92rem;
+  }
+  .transcript .who {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    display: block;
+    margin-bottom: 3px;
+  }
+  .transcript .quote {
+    color: var(--ink-soft);
+    font-style: italic;
+  }
+
+  /* pitfalls list */
+  .pitfall-list {
+    list-style: none;
+    margin: 14px 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .pitfall-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+  }
+  .pitfall-list li .mark {
+    flex: 0 0 auto;
+    width: 20px;
+    height: 20px;
+    margin-top: 2px;
+    border-radius: 5px;
+    background: var(--accent-soft);
+    border: 1px solid var(--accent-soft-line);
+    color: var(--accent-ink);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .pitfall-list li .text { flex: 1 1 auto; }
+  .pitfall-list li strong { color: var(--ink); font-weight: 600; }
+
+  /* tech chips */
+  .tech-chips {
+    margin-top: 14px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .tech-chip {
+    position: relative;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    padding: 6px 12px;
+    border-radius: 6px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    color: var(--ink-soft);
+    cursor: default;
+  }
+  .tech-chip:hover,
+  .tech-chip:focus-visible {
+    border-color: var(--accent-soft-line);
+    color: var(--accent-ink);
+    outline: none;
+  }
+  .tech-chip::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    width: max-content;
+    max-width: 240px;
+    background: var(--ink);
+    color: var(--bg);
+    font-family: 'Work Sans', sans-serif;
+    font-size: 0.78rem;
+    line-height: 1.5;
+    text-align: left;
+    padding: 9px 12px;
+    border-radius: 8px;
+    box-shadow: 0 8px 20px rgba(43,33,23,0.18);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    z-index: 20;
+  }
+  .tech-chip::before {
+    content: "";
+    position: absolute;
+    bottom: calc(100% + 5px);
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: var(--ink);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+    z-index: 20;
+  }
+  .tech-chip:hover::after, .tech-chip:focus-visible::after,
+  .tech-chip:hover::before, .tech-chip:focus-visible::before {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tech-chip::after, .tech-chip::before { transition: none; }
+  }
+
+  /* decision points */
+  .decisions {
+    margin-top: 36px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .decisions-label {
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 4px;
+  }
+  .decision {
+    background: var(--accent-soft);
+    border: 1px solid var(--accent-soft-line);
+    border-radius: 10px;
+    padding: 18px 20px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 16px;
+    align-items: start;
+  }
+  .decision .idx {
+    font-family: 'Fraunces', serif;
+    font-size: 1.6rem;
+    color: var(--accent-ink);
+    line-height: 1;
+    opacity: 0.55;
+  }
+  .decision h4 {
+    margin: 0 0 4px;
+    font-size: 0.98rem;
+    font-weight: 600;
+    color: var(--accent-ink);
+    font-family: 'Work Sans', sans-serif;
+  }
+  .decision p {
+    margin: 0;
+    font-size: 0.92rem;
+    color: var(--ink);
+  }
+
+  /* result cards */
+  .results-grid {
+    margin-top: 22px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 18px;
+  }
+  .result-card {
+    background: var(--surface);
+    border: 1px solid var(--line-soft);
+    border-radius: 12px;
+    padding: 22px;
+    box-shadow: var(--shadow);
+  }
+  .result-card .kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .result-card h4 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 0 0 8px;
+  }
+  .result-card p {
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    margin: 0;
+  }
+
+  .result-card--clickable {
+    display: block;
+    width: 100%;
+    text-align: left;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    transition: transform 0.15s ease, border-color 0.15s ease;
+  }
+  .result-card--clickable .peek {
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--ink-faint);
+    font-size: 0.72rem;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+  .result-card--clickable:hover,
+  .result-card--clickable:focus-visible {
+    border-color: var(--accent-soft-line);
+    transform: translateY(-2px);
+  }
+  .result-card--clickable:hover .peek,
+  .result-card--clickable:focus-visible .peek {
+    opacity: 1;
+  }
+  .result-card--clickable:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* ---- modal ---- */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 15, 8, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    z-index: 100;
+    opacity: 0;
+    transition: opacity 0.18s ease;
+  }
+  .modal-backdrop[hidden] { display: none; }
+  .modal-backdrop.is-open { opacity: 1; }
+
+  .modal {
+    background: var(--surface-raised);
+    border: 1px solid var(--line-soft);
+    border-radius: 16px;
+    max-width: 560px;
+    width: 100%;
+    max-height: min(80vh, 700px);
+    overflow-y: auto;
+    padding: 34px 34px 30px;
+    box-shadow: 0 20px 60px rgba(43,33,23,0.25);
+    position: relative;
+    transform: translateY(10px) scale(0.98);
+    transition: transform 0.18s ease;
+  }
+  .modal-backdrop.is-open .modal {
+    transform: translateY(0) scale(1);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .modal-backdrop, .modal { transition: none; }
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ink-soft);
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-close:hover { border-color: var(--accent-soft-line); color: var(--accent-ink); }
+  .modal-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .modal .kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+    display: block;
+    margin-bottom: 10px;
+  }
+  .modal h3 {
+    font-size: 1.35rem;
+    margin-bottom: 12px;
+    padding-right: 30px;
+  }
+  .modal .modal-lead {
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+    margin-bottom: 26px;
+  }
+  .modal h5 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--ink-faint);
+    font-weight: 500;
+    margin: 0 0 12px;
+  }
+  .modal-section + .modal-section { margin-top: 26px; }
+  .trigger-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .trigger-tags span {
+    font-size: 0.82rem;
+    padding: 5px 12px;
+    border-radius: 100px;
+    background: var(--accent-soft);
+    border: 1px solid var(--accent-soft-line);
+    color: var(--accent-ink);
+  }
+  .modal-steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .modal-steps li {
+    display: grid;
+    grid-template-columns: 24px 1fr;
+    gap: 12px;
+    font-size: 0.92rem;
+    color: var(--ink);
+  }
+  .modal-steps .step-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent-ink);
+    background: var(--accent-soft);
+    border: 1px solid var(--accent-soft-line);
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-steps strong { font-weight: 600; }
+  .modal-note {
+    margin-top: 26px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    background: var(--bg);
+    border: 1px solid var(--line-soft);
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+  }
+
+  /* future two column */
+  .future-grid {
+    margin-top: 22px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+  }
+  .future-col h3 {
+    font-size: 0.95rem;
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--ink-faint);
+    font-weight: 500;
+    margin-bottom: 12px;
+  }
+  .future-col .prose { font-size: 0.95rem; }
+
+  /* checklist */
+  .checklist-block {
+    background: var(--surface);
+    border: 1px solid var(--line-soft);
+    border-radius: 14px;
+    padding: 36px 36px;
+  }
+  .checklist-block h2 { font-size: 1.4rem; margin-bottom: 8px; }
+  .checklist-block .sub { color: var(--ink-soft); font-size: 0.92rem; margin-bottom: 22px; }
+  .checklist {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .checklist li {
+    display: grid;
+    grid-template-columns: 22px 1fr;
+    gap: 12px;
+    font-size: 0.96rem;
+    align-items: start;
+  }
+  .checklist li::before {
+    content: "";
+    width: 18px;
+    height: 18px;
+    border-radius: 5px;
+    border: 1.5px solid var(--accent);
+    margin-top: 2px;
+  }
+
+  footer {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 40px 28px 60px;
+    border-top: 1px solid var(--line);
+    color: var(--ink-faint);
+    font-size: 0.82rem;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  @media (max-width: 600px) {
+    .shell { padding: 0 18px 72px; }
+    .topnav { padding: 22px 18px 0; }
+    .entry-header { padding: 40px 0 32px; }
+    .checklist-block { padding: 28px 22px; }
+  }
+</style>
+
+<body>
+<div class="topnav">
+  <a href="index.html">← 案例集索引</a>
+  <span class="mono" style="font-size:0.78rem; color: var(--ink-faint);">案例 02</span>
+</div>
+
+<div class="shell">
+  <header class="entry-header">
+    <h1>從手動截圖到自動化月報</h1>
+    <p class="tldr">跟 Claude 一起把工程顧問案的每月進度報告，從「每月手動截圖＋人工比對公文」磨成一套可重複、可驗證的工作流，最後收斂成一個能套用到其他專案的 skill。</p>
+
+    <div class="meta-row">
+      <span class="tag accent">成果類型：自動化工作流 + Skill</span>
+      <span class="tag">2026.07 – 08</span>
+    </div>
+
+    <div class="for-who"><strong>適合誰看：</strong>常態要交付政府標案／顧問案月報的人；或想了解怎麼跟 Claude 協作，把一次性任務磨成可重複流程的人。</div>
+  </header>
+
+  <div class="layout">
+
+    <section class="block">
+      <div class="block-head">
+        <span class="block-num">01</span>
+        <h2>痛點說明</h2>
+      </div>
+      <div class="prose">
+        <ul>
+          <li>工作期程表（甘特圖）是每個月手動截一次 Excel 畫面貼進報告裡——排程一動就要重截一次。</li>
+          <li>來往公文要跟簽核系統匯出的紀錄手動核對，格式不完全一致，容易重複列或漏列。</li>
+          <li>進度表、人力時數表、往來公文、當月／次月工作說明——格式固定，但每月的實際內容要重新盤點。</li>
+          <li>每個月都在做「跟上個月很像、但不能直接複製」的重工，很難交給別人代勞，也很難靠純模板解決。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="block-head">
+        <span class="block-num">02</span>
+        <h2>逐步研討</h2>
+      </div>
+
+      <div class="subgroup">
+        <h3>prompt 設計邏輯</h3>
+        <div class="prose">
+          <ul>
+            <li>第一句 prompt 只問了「需要給你什麼資料才能建立這個工作流」，不是直接要 Claude 產出報告。</li>
+            <li>Claude 在回答之前，先讀懂既有 Word 報告和 Excel 期程表的實際結構，確認章節、表格分別對應什麼內容，而不是憑經驗猜。</li>
+            <li>把每月要處理的內容拆成三種分開談：原則不變的樣板、可以從資料算出來的內容、只有人才知道的敘述。</li>
+          </ul>
+        </div>
+        <div class="transcript">
+          <div class="line">
+            <span class="who">Leo</span>
+            <span class="quote">「我要每月定期產出如資料夾中的報告，期程表的內容要自動更新至最新月份，我需要給你什麼資料來建立這個工作流？」</span>
+          </div>
+          <div class="line">
+            <span class="who">Claude</span>
+            <span class="quote">先讀完兩份範本檔案，拆解出每月會變／不會變的部分，再回頭列出需要的資料清單</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="subgroup">
+        <h3>疊代修正過程</h3>
+        <div class="prose">
+          <ul>
+            <li>第一輪試跑：進度表只顯示了「預定進度」，沒有同時顯示「實際進度」。</li>
+            <li>第二輪：使用者回報「圖一（組織圖）壞掉了」——但在 Claude 這邊的預覽工具打開明明正常。</li>
+            <li>第三輪：使用者手動調整過表格格式後，Claude 整份重新產生蓋掉了調整；公文去重邏輯沒比對日期，誤刪了一筆真實紀錄。</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="subgroup">
+        <h3>踩過的坑</h3>
+        <ul class="pitfall-list">
+          <li><span class="mark">!</span><span class="text"><strong>肉眼看不出來的結構性錯誤：</strong>圖片壞掉的根因不是圖片本身，是自己寫的表格 XML 元素寫入順序不符合 Word 規範，Word 開啟時「修復」，把圖片修掉了。解法不是小心一點，而是每次交付前都跑一次正式的 schema 驗證工具。</span></li>
+          <li><span class="mark">!</span><span class="text"><strong>去重邏輯只比對文字，沒比對日期：</strong>同一份公文可能在系統上出現兩個不同簽核時間，只比對字號跟主旨文字，會誤刪掉真實存在的紀錄。</span></li>
+          <li><span class="mark">!</span><span class="text"><strong>整份重新產生，蓋掉了使用者的手動調整：</strong>使用者在 Word 裡調整過表格格式後，若整份文件重新產生，會把調整蓋掉——改成只讀取並編輯需要異動的段落／表格，其餘完全不碰。</span></li>
+        </ul>
+      </div>
+
+      <div class="subgroup">
+        <h3>用到的技術／skill／工具</h3>
+        <div class="tech-chips">
+          <span class="tech-chip" tabindex="0" data-tip="讀寫既有 Word／Excel 檔案的段落與表格結構">python-docx／openpyxl</span>
+          <span class="tech-chip" tabindex="0" data-tip="轉成 PDF 再截圖，做最後的視覺驗證">LibreOffice headless＋截圖</span>
+          <span class="tech-chip" tabindex="0" data-tip="比對「範本原有問題」跟「自己新增的問題」，交付前的硬性關卡">OOXML schema 驗證工具</span>
+          <span class="tech-chip" tabindex="0" data-tip="處理表格 XML 元素排序，後來包進了 skill 裡的共用腳本">自製表格排版 helper</span>
+          <span class="tech-chip" tabindex="0" data-tip="產出、驗證、渲染 Word 文件的標準流程">Claude docx skill</span>
+          <span class="tech-chip" tabindex="0" data-tip="把整套經驗封裝成可攜式、可安裝的 skill">Claude skill-creator</span>
+        </div>
+      </div>
+
+      <div class="decisions">
+        <div class="decisions-label">關鍵決策點</div>
+        <div class="decision">
+          <span class="idx">1</span>
+          <div><h4>把截圖改成原生表格＋色塊</h4><p>沒有這一步，自動化根本無從談起——貼圖沒辦法被程式更新，只能每月手動重截。改成表格之後，資料才能直接從 Excel 算出來、動態上色。</p></div>
+        </div>
+        <div class="decision">
+          <span class="idx">2</span>
+          <div><h4>導入 XML schema 驗證，作為交付前的硬性關卡</h4><p>圖片壞掉的根因是表格 XML 元素寫入順序不合規範，肉眼完全看不出來。解法是每次交付前都跑一次正式驗證工具，把「看起來沒問題」升級成「有工具把關」。</p></div>
+        </div>
+        <div class="decision">
+          <span class="idx">3</span>
+          <div><h4>去重邏輯從「文字相同」改成「文字＋日期都對得上」</h4><p>同一份公文可能在系統上出現兩個不同簽核時間，只看文字內容會誤刪真實存在的紀錄。</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="block-head">
+        <span class="block-num">03</span>
+        <h2>成果展示</h2>
+      </div>
+      <div class="prose">
+        <p>這次協作的三個成果，都是透過對話直接遞送的檔案，沒有公開網址——點卡片可以看更完整的說明。</p>
+      </div>
+      <div class="results-grid">
+        <button type="button" class="result-card result-card--clickable" id="report-card-trigger" aria-haspopup="dialog">
+          <span class="kicker">月度交付物<span class="peek">點看說明 ↗</span></span>
+          <h4>期程表.xlsx＋工作月報.docx</h4>
+          <p>每月實際要交給主辦機關的兩份檔案，依甘特圖資料自動建表、驗證後產出。</p>
+        </button>
+        <button type="button" class="result-card result-card--clickable" id="flow-card-trigger" aria-haspopup="dialog">
+          <span class="kicker">流程文件<span class="peek">點看說明 ↗</span></span>
+          <h4>工作月報自動化流程.md</h4>
+          <p>整理「每月要給什麼、會拿到什麼、要檢查什麼」的 checklist，讓下個月能直接照著做。</p>
+        </button>
+        <button type="button" class="result-card result-card--clickable" id="skill-card-trigger" aria-haspopup="dialog">
+          <span class="kicker">Skill<span class="peek">點看說明 ↗</span></span>
+          <h4>monthly-progress-report.skill</h4>
+          <p>把這次踩過的坑封裝成通用版本，換一個專案也能直接套用，不用從零開始。</p>
+        </button>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="block-head">
+        <span class="block-num">04</span>
+        <h2>未來方向</h2>
+      </div>
+      <div class="future-grid">
+        <div class="future-col">
+          <h3>本專案精進</h3>
+          <div class="prose">
+            <ul>
+              <li>「本月完成項目」可以做成更結構化的輸入介面，減少來回確認。</li>
+              <li>把公文比對再自動化一點，例如直接串接簽核系統，減少手動匯出 CSV 的步驟。</li>
+              <li>累積更多個月之後，可以回頭把估算邏輯（如人力時數）校準得更準。</li>
+            </ul>
+          </div>
+        </div>
+        <div class="future-col">
+          <h3>延伸應用</h3>
+          <div class="prose">
+            <ul>
+              <li>任何「Word 報告＋Excel 排程表＋往來文件記錄」三件套的定期報告都適用。</li>
+              <li>例如：工程履約報告、政府標案進度報告、內部專案週報。</li>
+              <li>skill 已經封裝成通用版本，換專案時不用從零開始。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="block checklist-block">
+      <h2>如果你也想試試看</h2>
+      <p class="sub">把自己的定期報告交給 Claude 自動化之前，可以先檢查這幾件事：</p>
+      <ul class="checklist">
+        <li>先讓 Claude 讀你現有範本的實際結構，不要自己假設它長什麼樣</li>
+        <li>把「每月會變」跟「原則不變」的部分講清楚，分開處理</li>
+        <li>第一次先試跑一次，讓格式、邏輯上的問題先浮現出來</li>
+        <li>敘述性內容（本月實際做了什麼）一定要親自告訴 Claude，不要讓它用預設值去猜</li>
+        <li>覺得這套流程以後還會用到其他專案，就讓 Claude 幫你收斂成一個 skill</li>
+      </ul>
+    </section>
+
+  </div>
+</div>
+
+<footer>
+  <span>Leo 的 AI 協作案例集</span>
+  <span class="mono">案例 02 / 2026</span>
+</footer>
+
+<div class="modal-backdrop" id="report-modal-backdrop" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="report-modal-title">
+    <button type="button" class="modal-close" data-close aria-label="關閉">×</button>
+    <span class="kicker">月度交付物說明</span>
+    <h3 id="report-modal-title">期程表.xlsx＋工作月報.docx</h3>
+    <p class="modal-lead">工程顧問案「金同春圳水源集水設施調查評估計畫」的月度交付物，本篇案例示範的是 115 年 7 月版本。</p>
+    <div class="modal-section">
+      <h5>運作邏輯</h5>
+      <ul class="modal-steps">
+        <li><span class="step-num">1</span><span><strong>讀取上月範本結構</strong> — 不假設格式，實際解析段落與表格對應關係</span></li>
+        <li><span class="step-num">2</span><span><strong>依甘特圖資料建立色塊表格</strong> — 用原生 Word 表格取代貼圖截圖</span></li>
+        <li><span class="step-num">3</span><span><strong>比對簽核系統匯出的公文清單</strong> — 文字＋日期都對得上才算重複</span></li>
+        <li><span class="step-num">4</span><span><strong>跑 OOXML schema 驗證</strong> — 確認在真正的 Word 裡也能正常開啟</span></li>
+      </ul>
+    </div>
+    <div class="modal-note">這兩份檔案是這個工程顧問案專屬的交付物，透過對話直接產出給使用者，不是公開網址，這裡用說明取代連結。</div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="flow-modal-backdrop" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="flow-modal-title">
+    <button type="button" class="modal-close" data-close aria-label="關閉">×</button>
+    <span class="kicker">流程文件說明</span>
+    <h3 id="flow-modal-title">工作月報自動化流程.md</h3>
+    <p class="modal-lead">記錄這套機制怎麼建立起來、每月要給什麼、Claude 會拿到什麼、使用者要檢查什麼的參考文件。</p>
+    <div class="modal-section">
+      <h5>涵蓋內容</h5>
+      <ul class="modal-steps">
+        <li><span class="step-num">1</span><span><strong>建立過程回顧</strong> — 這套自動化是怎麼一步步磨出來的，踩過哪些坑</span></li>
+        <li><span class="step-num">2</span><span><strong>每月輸入清單</strong> — 本月完成項目／人力時數／來往公文／異常狀況</li>
+        <li><span class="step-num">3</span><span><strong>每月產出清單</strong> — 更新後的期程表、工作月報、假設/估算摘要</span></li>
+        <li><span class="step-num">4</span><span><strong>使用者檢查重點</strong> — 把review範圍從「重讀整份文件」縮小到「檢查幾個關鍵點」</span></li>
+      </ul>
+    </div>
+    <div class="modal-note">跟月度交付物一樣，是透過對話直接遞送的檔案，不是公開網址。</div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="skill-modal-backdrop" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="skill-modal-title">
+    <button type="button" class="modal-close" data-close aria-label="關閉">×</button>
+    <span class="kicker">Skill 說明</span>
+    <h3 id="skill-modal-title">monthly-progress-report.skill</h3>
+    <p class="modal-lead">把這次月報自動化踩過的坑封裝成通用版本，可安裝後套用到其他有「Word報告＋Excel排程表＋往來文件」的定期報告專案。</p>
+    <div class="modal-section">
+      <h5>觸發時機</h5>
+      <div class="trigger-tags">
+        <span>幫我做月報</span>
+        <span>更新期程表</span>
+        <span>比對來往公文</span>
+        <span>把截圖表格改成原生表格</span>
+      </div>
+    </div>
+    <div class="modal-section">
+      <h5>運作邏輯</h5>
+      <ul class="modal-steps">
+        <li><span class="step-num">1</span><span><strong>先讀懂範本結構</strong> — 不假設跟其他專案一樣，實際解析檔案</span></li>
+        <li><span class="step-num">2</span><span><strong>建原生表格並驗證 schema</strong> — 內建 OOXML 元素排序 helper 腳本</span></li>
+        <li><span class="step-num">3</span><span><strong>公文去重比對日期＋文字</strong> — 避免誤刪同號不同簽核時間的紀錄</span></li>
+        <li><span class="step-num">4</span><span><strong>保留使用者手動調整過的格式</strong> — 只編輯需要異動的段落，其餘不動</span></li>
+      </ul>
+    </div>
+    <div class="modal-note">這個 .skill 檔案是透過對話直接安裝到 Claude 帳號使用，不是一個可公開瀏覽的網址，所以這裡用說明取代下載連結。</div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var modals = [
+      { trigger: 'report-card-trigger', backdrop: 'report-modal-backdrop' },
+      { trigger: 'flow-card-trigger', backdrop: 'flow-modal-backdrop' },
+      { trigger: 'skill-card-trigger', backdrop: 'skill-modal-backdrop' }
+    ];
+
+    modals.forEach(function (cfg) {
+      var trigger = document.getElementById(cfg.trigger);
+      var backdrop = document.getElementById(cfg.backdrop);
+      if (!trigger || !backdrop) return;
+      var closeBtn = backdrop.querySelector('[data-close]');
+
+      function onKeydown(e) {
+        if (e.key === 'Escape') closeModal();
+      }
+      function openModal() {
+        backdrop.hidden = false;
+        requestAnimationFrame(function () { backdrop.classList.add('is-open'); });
+        if (closeBtn) closeBtn.focus();
+        document.addEventListener('keydown', onKeydown);
+      }
+      function closeModal() {
+        backdrop.classList.remove('is-open');
+        document.removeEventListener('keydown', onKeydown);
+        window.setTimeout(function () { backdrop.hidden = true; }, 180);
+        trigger.focus();
+      }
+
+      trigger.addEventListener('click', openModal);
+      if (closeBtn) closeBtn.addEventListener('click', closeModal);
+      backdrop.addEventListener('click', function (e) {
+        if (e.target === backdrop) closeModal();
+      });
+    });
+  })();
+</script>
+
+</body>
+</html>
