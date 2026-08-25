@@ -654,6 +654,107 @@
     gap: 10px;
   }
 
+
+  .illus-pair {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 18px;
+    margin-top: 16px;
+  }
+  .illus-figure {
+    background: var(--surface);
+    border: 1px solid var(--line-soft);
+    border-radius: 10px;
+    padding: 14px;
+    margin: 0;
+  }
+  .illus-figure img {
+    width: 100%;
+    height: auto;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+    display: block;
+  }
+  .illus-figure figcaption {
+    margin-top: 10px;
+    font-size: 0.75rem;
+    color: var(--ink-faint);
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .update-item {
+    margin-top: 30px;
+    padding-top: 26px;
+    border-top: 1px dashed var(--line);
+  }
+  .update-item:first-child { margin-top: 0; padding-top: 0; border-top: none; }
+  .update-item h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 8px;
+    color: var(--ink);
+    font-family: 'Work Sans', sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .update-item h4 .tag-mini {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    padding: 3px 9px;
+    border-radius: 100px;
+    background: var(--accent-soft);
+    border: 1px solid var(--accent-soft-line);
+    color: var(--accent-ink);
+    font-weight: 500;
+  }
+  .update-item .prose { font-size: 0.95rem; }
+  .placeholder-shot {
+    border: 1px dashed var(--line);
+    border-radius: 10px;
+    padding: 30px 20px;
+    text-align: center;
+    color: var(--ink-faint);
+    font-size: 0.85rem;
+    background: transparent;
+    margin-top: 14px;
+  }
+  .mini-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 14px;
+    font-size: 0.82rem;
+  }
+  .mini-table th, .mini-table td {
+    border: 1px solid var(--line);
+    padding: 8px 10px;
+    text-align: left;
+    vertical-align: top;
+  }
+  .mini-table th {
+    background: var(--accent-soft);
+    color: var(--accent-ink);
+    font-weight: 600;
+    font-size: 0.75rem;
+  }
+  .mini-table tr.flag td { background: #fdf6e8; }
+  .fake-note {
+    font-size: 0.78rem;
+    color: var(--ink-faint);
+    margin-top: 10px;
+  }
+  .highlight-bar {
+    margin-top: 18px;
+    padding: 16px 20px;
+    border-radius: 10px;
+    background: var(--accent-soft);
+    border: 1px solid var(--accent-soft-line);
+    color: var(--accent-ink);
+    font-size: 0.92rem;
+  }
+  .highlight-bar strong { font-weight: 600; }
+
   @media (max-width: 600px) {
     .shell { padding: 0 18px 72px; }
     .topnav { padding: 22px 18px 0; }
@@ -690,6 +791,7 @@
       </div>
       <div class="prose">
         <ul>
+          <li>原本每月要準備兩份檔案：Word 工作月報＋Excel 工作期程表，兩邊還要手動對齊進度。</li>
           <li>工作期程表（甘特圖）是每個月手動截一次 Excel 畫面貼進報告裡——排程一動就要重截一次。</li>
           <li>來往公文要跟簽核系統匯出的紀錄手動核對，格式不完全一致，容易重複列或漏列。</li>
           <li>進度表、人力時數表、往來公文、當月／次月工作說明——格式固定，但每月的實際內容要重新盤點。</li>
@@ -726,6 +828,82 @@
       </div>
 
       <div class="subgroup">
+        <h3>五大區塊，各自怎麼更新</h3>
+        <div class="prose">
+          <p>月報裡有五個每月都要更新的區塊，更新邏輯各不相同——甘特圖是純資料運算，公文是比對現有紀錄，敘述性內容則要參考上一份報告的寫法：</p>
+        </div>
+
+        <div class="update-item">
+          <h4>甘特圖（表一）<span class="tag-mini">資料運算</span></h4>
+          <div class="prose">
+            <p>AI 自動把預定進度更新到最新月份；實際進度預設等於預定進度，除非使用者另外回報差異。</p>
+          </div>
+          <div class="illus-pair">
+            <figure class="illus-figure">
+              <img src="../assets/images/case-02-gantt-before.jpg" alt="原始的工作執行進度表，只有預定進度一列">
+              <figcaption>原始資料 · 只有預定進度</figcaption>
+            </figure>
+            <figure class="illus-figure">
+              <img src="../assets/images/case-02-gantt-after.jpg" alt="更新後的工作執行進度表，同時顯示預定與實際進度">
+              <figcaption>最終結果 · 預定／實際雙色並列</figcaption>
+            </figure>
+          </div>
+          <p class="fake-note">圖中的圳名已用「○○」替換，實際客戶／機關資訊不對外公開。</p>
+        </div>
+
+        <div class="update-item">
+          <h4>當月工作說明＋次月預定工作<span class="tag-mini">承接上月＋比對甘特圖</span></h4>
+          <div class="prose">
+            <ul>
+              <li><strong>當月工作：</strong>先複製上一份報告「次月預定工作」的內容，再對照甘特圖，檢查本月是否有新啟動的工作項目要補上。</li>
+              <li><strong>次月工作：</strong>依甘特圖裡「次月」對應的工作項目自動填入。</li>
+            </ul>
+          </div>
+          <div class="illus-pair">
+            <figure class="illus-figure" style="max-width:360px;">
+              <img src="../assets/images/case-02-narrative.jpg" alt="當月工作執行說明與次月預定工作的文字內容">
+              <figcaption>最終結果 · 當月／次月工作說明</figcaption>
+            </figure>
+          </div>
+        </div>
+
+        <div class="update-item">
+          <h4>工作人力（表二）<span class="tag-mini">依當月工作估算</span></h4>
+          <div class="prose">
+            <p>依當月實際執行的工作項目，對照人力組織的分組與職級去估算工時。姓名部分已在圖中遮蔽。</p>
+          </div>
+          <div class="illus-pair">
+            <figure class="illus-figure">
+              <img src="../assets/images/case-02-manpower.jpg" alt="工作人力及時數表，姓名欄位已遮蔽">
+              <figcaption>最終結果 · 人力時數（姓名已遮蔽）</figcaption>
+            </figure>
+          </div>
+        </div>
+
+        <div class="update-item">
+          <h4>來往公文（表三）<span class="tag-mini">CSV 比對＋校對</span></h4>
+          <div class="prose">
+            <p>使用者提供簽核系統匯出的 CSV，AI 自動辨識欄位、比對既有清單、填入並校對，避免重複列或漏列。下面是示意用的假資料，不是真實公文內容：</p>
+          </div>
+          <table class="mini-table">
+            <thead>
+              <tr><th>序號</th><th>發文日期</th><th>發文單位</th><th>發文字號</th><th>主旨</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>12</td><td>115/6/10</td><td>○○機關</td><td>○字第00123號</td><td>檢送「○○計畫」115年5月工作月報，請查照。</td></tr>
+              <tr class="flag"><td>13</td><td>115/6/12</td><td>○○機關</td><td>（未提供）</td><td>同意本處於○○地設置臨時監測井案，請查照。</td></tr>
+              <tr><td>14</td><td>115/6/15</td><td>○○公司</td><td>○字第00456號</td><td>檢送「○○計畫」保險單正本，請查照。</td></tr>
+            </tbody>
+          </table>
+          <p class="fake-note">第 13 筆刻意示範沒有文號的情況：這種公文 AI 會依日期與主旨內容自行假設比對邏輯，但不會悄悄套用——而是明確標註「這是我的假設」，請使用者確認後再收進清單。</p>
+        </div>
+
+        <div class="prose" style="margin-top:26px;">
+          <p style="font-size:0.88rem; color:var(--ink-faint);">圖一（計畫組織）是報告裡固定不變的部分，這次沒有調整，直接沿用範本，所以不放在這裡的更新邏輯中。</p>
+        </div>
+      </div>
+
+      <div class="subgroup">
         <h3>疊代修正過程</h3>
         <div class="prose">
           <ul>
@@ -733,6 +911,12 @@
             <li>第二輪：使用者回報「圖一（組織圖）壞掉了」——但在 Claude 這邊的預覽工具打開明明正常。</li>
             <li>第三輪：使用者手動調整過表格格式後，Claude 整份重新產生蓋掉了調整；公文去重邏輯沒比對日期，誤刪了一筆真實紀錄。</li>
           </ul>
+        </div>
+      </div>
+
+      <div class="subgroup">
+        <div class="placeholder-shot">
+          當時「圖一壞掉」「進度沒顯示完整」的實際截圖，之後補上
         </div>
       </div>
 
@@ -771,6 +955,10 @@
           <span class="idx">3</span>
           <div><h4>去重邏輯從「文字相同」改成「文字＋日期都對得上」</h4><p>同一份公文可能在系統上出現兩個不同簽核時間，只看文字內容會誤刪真實存在的紀錄。</p></div>
         </div>
+        <div class="decision">
+          <span class="idx">4</span>
+          <div><h4>資料不全時，先假設再請人驗證，而不是悄悄猜</h4><p>遇到沒有文號可比對的公文，AI 會依日期、主旨內容自己假設比對邏輯，但不會直接套用——而是明確標註「這是我的假設」，交給使用者確認，把最終判斷權留給人。</p></div>
+        </div>
       </div>
     </section>
 
@@ -782,11 +970,14 @@
       <div class="prose">
         <p>這次協作的三個成果，都是透過對話直接遞送的檔案，沒有公開網址——點卡片可以看更完整的說明。</p>
       </div>
+      <div class="highlight-bar">
+        <strong>最直接的改變：</strong>原本每月要交付 Word 報告＋Excel 期程表兩份檔案；系統建好之後，期程表已經原生內嵌在 Word 報告的表格裡，現在只要維護、交付一份 Word 報告就好，不用再另外產出一份 Excel 檔案。
+      </div>
       <div class="results-grid">
         <button type="button" class="result-card result-card--clickable" id="report-card-trigger" aria-haspopup="dialog">
           <span class="kicker">月度交付物<span class="peek">點看說明 ↗</span></span>
-          <h4>期程表.xlsx＋工作月報.docx</h4>
-          <p>每月實際要交給主辦機關的兩份檔案，依甘特圖資料自動建表、驗證後產出。</p>
+          <h4>工作月報.docx（期程表已內嵌）</h4>
+          <p>現在每月只要交付一份 Word 報告，期程表原生內嵌其中，不用再另外產出一份 Excel 檔案。</p>
         </button>
         <button type="button" class="result-card result-card--clickable" id="flow-card-trigger" aria-haspopup="dialog">
           <span class="kicker">流程文件<span class="peek">點看說明 ↗</span></span>
@@ -812,7 +1003,7 @@
           <div class="prose">
             <ul>
               <li>「本月完成項目」可以做成更結構化的輸入介面，減少來回確認。</li>
-              <li>把公文比對再自動化一點，例如直接串接簽核系統，減少手動匯出 CSV 的步驟。</li>
+              <li>目前公文清單是由行政同仁協助手動匯出 CSV，如果能直接串接公司的 ERP 系統，這一步就可以再更自動化。</li>
               <li>累積更多個月之後，可以回頭把估算邏輯（如人力時數）校準得更準。</li>
             </ul>
           </div>
@@ -854,18 +1045,18 @@
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="report-modal-title">
     <button type="button" class="modal-close" data-close aria-label="關閉">×</button>
     <span class="kicker">月度交付物說明</span>
-    <h3 id="report-modal-title">期程表.xlsx＋工作月報.docx</h3>
-    <p class="modal-lead">工程顧問案「金同春圳水源集水設施調查評估計畫」的月度交付物，本篇案例示範的是 115 年 7 月版本。</p>
+    <h3 id="report-modal-title">工作月報.docx（期程表已內嵌）</h3>
+    <p class="modal-lead">工程顧問案專屬的月度交付物（機關與標案全名不對外公開），本篇案例示範的是 115 年 7 月版本。系統建好之後，期程表已經內嵌在報告的表格裡，不用再另外交付一份 Excel 檔案。</p>
     <div class="modal-section">
       <h5>運作邏輯</h5>
       <ul class="modal-steps">
         <li><span class="step-num">1</span><span><strong>讀取上月範本結構</strong> — 不假設格式，實際解析段落與表格對應關係</span></li>
-        <li><span class="step-num">2</span><span><strong>依甘特圖資料建立色塊表格</strong> — 用原生 Word 表格取代貼圖截圖</span></li>
+        <li><span class="step-num">2</span><span><strong>依甘特圖資料建立色塊表格</strong> — 用原生 Word 表格取代貼圖截圖，期程表不再需要獨立產出</span></li>
         <li><span class="step-num">3</span><span><strong>比對簽核系統匯出的公文清單</strong> — 文字＋日期都對得上才算重複</span></li>
         <li><span class="step-num">4</span><span><strong>跑 OOXML schema 驗證</strong> — 確認在真正的 Word 裡也能正常開啟</span></li>
       </ul>
     </div>
-    <div class="modal-note">這兩份檔案是這個工程顧問案專屬的交付物，透過對話直接產出給使用者，不是公開網址，這裡用說明取代連結。</div>
+    <div class="modal-note">這份檔案是這個工程顧問案專屬的交付物，透過對話直接產出給使用者，不是公開網址，這裡用說明取代連結。</div>
   </div>
 </div>
 
