@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>用 AI 整理 10 年份的工程簡報資料夾 · AI 協作案例</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+    :root {
+      --bg: #faf3e3; --surface: #fffcf3; --surface-raised: #ffffff;
+      --ink: #2b2117; --ink-soft: #71624c; --ink-faint: #a3937a;
+      --line: #e8d9b8; --line-soft: #f1e6cc;
+      --accent: #b8791f; --accent-ink: #7a4e13;
+      --accent-soft: #f4e2b3; --accent-soft-line: #e2c67f;
+      --shadow: 0 1px 2px rgba(43,33,23,0.05), 0 8px 24px rgba(43,33,23,0.07);
+    }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--ink); font-family:'Work Sans','Noto Sans TC',system-ui,sans-serif; line-height:1.7; -webkit-font-smoothing:antialiased; }
+    h1,h2,h3 { font-family:'Fraunces','Noto Serif TC',serif; font-weight:600; text-wrap:balance; color:var(--ink); margin:0; }
+    a { color:var(--accent-ink); }
+    .shell { max-width:1080px; margin:0 auto; padding:0 28px 96px; }
+    .topnav { display:flex; align-items:center; justify-content:space-between; max-width:1080px; margin:0 auto; padding:28px 28px 0; }
+    .topnav a { text-decoration:none; color:var(--ink-soft); font-size:0.85rem; display:inline-flex; align-items:center; gap:6px; transition:color 0.15s; }
+    .topnav a:hover { color:var(--accent-ink); }
+    .entry-header { padding:56px 0 44px; border-bottom:1px solid var(--line); margin-bottom:48px; }
+    .eyebrow { display:flex; align-items:center; gap:10px; font-size:0.8rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-ink); margin-bottom:18px; }
+    .eyebrow::before { content:""; width:22px; height:1px; background:var(--accent); }
+    .entry-header h1 { font-size:clamp(2rem,4.4vw,3rem); line-height:1.15; max-width:18ch; }
+    .tldr { margin-top:22px; font-size:1.08rem; color:var(--ink-soft); max-width:62ch; }
+    .meta-row { display:flex; flex-wrap:wrap; gap:10px; margin-top:28px; }
+    .tag { font-family:'JetBrains Mono',monospace; font-size:0.72rem; letter-spacing:0.02em; padding:5px 11px; border-radius:100px; border:1px solid var(--line); color:var(--ink-soft); background:var(--surface); }
+    .tag.accent { border-color:var(--accent-soft-line); background:var(--accent-soft); color:var(--accent-ink); }
+    .for-who { margin-top:26px; padding:16px 20px; background:var(--surface); border:1px solid var(--line-soft); border-radius:10px; font-size:0.92rem; color:var(--ink-soft); max-width:62ch; }
+    .for-who strong { color:var(--ink); font-weight:600; }
+    .layout { display:grid; grid-template-columns:minmax(0,1fr); gap:8px; }
+    section.block { margin-bottom:64px; }
+    .block-head { display:flex; align-items:baseline; gap:14px; margin-bottom:22px; }
+    .block-num { font-family:'JetBrains Mono',monospace; font-size:0.85rem; color:var(--accent-ink); background:var(--accent-soft); border:1px solid var(--accent-soft-line); width:30px; height:30px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .block-head h2 { font-size:1.5rem; }
+    .prose { max-width:68ch; color:var(--ink); font-size:1.02rem; }
+    .prose p+p { margin-top:1em; }
+    .prose ul { margin:0; padding-left:1.15em; display:flex; flex-direction:column; gap:10px; }
+    .prose p+ul { margin-top:12px; }
+    .prose ul li { padding-left:4px; }
+    .prose ul li::marker { color:var(--accent-ink); }
+    .subgroup { margin-top:34px; padding-top:28px; border-top:1px dashed var(--line); }
+    .subgroup:first-child { margin-top:0; padding-top:0; border-top:none; }
+    .subgroup h3 { font-size:1.02rem; font-family:'Work Sans',sans-serif; font-weight:600; color:var(--ink); margin-bottom:10px; }
+    .subgroup .prose { font-size:0.98rem; }
+    .transcript { margin-top:14px; border-left:2px solid var(--line); padding-left:18px; display:flex; flex-direction:column; gap:14px; }
+    .transcript .line { font-size:0.92rem; }
+    .transcript .who { font-family:'JetBrains Mono',monospace; font-size:0.7rem; letter-spacing:0.04em; text-transform:uppercase; color:var(--ink-faint); display:block; margin-bottom:3px; }
+    .transcript .quote { color:var(--ink-soft); font-style:italic; }
+    .transcript .result { margin-top:2px; font-size:0.88rem; color:var(--accent-ink); display:flex; gap:6px; }
+    .transcript .result::before { content:"→"; flex-shrink:0; }
+    .pitfall-list { list-style:none; margin:14px 0 0; padding:0; display:flex; flex-direction:column; gap:12px; }
+    .pitfall-list li { display:flex; align-items:flex-start; gap:12px; font-size:0.95rem; color:var(--ink-soft); }
+    .pitfall-list li .mark { flex:0 0 auto; width:20px; height:20px; margin-top:2px; border-radius:5px; background:var(--accent-soft); border:1px solid var(--accent-soft-line); color:var(--accent-ink); font-family:'JetBrains Mono',monospace; font-size:0.72rem; font-weight:600; display:flex; align-items:center; justify-content:center; }
+    .pitfall-list li .text { flex:1 1 auto; }
+    .pitfall-list li strong { color:var(--ink); font-weight:600; }
+    .tech-chips { margin-top:14px; display:flex; flex-wrap:wrap; gap:8px; }
+    .tech-chip { position:relative; font-family:'JetBrains Mono',monospace; font-size:0.78rem; padding:6px 12px; border-radius:6px; background:var(--surface); border:1px solid var(--line); color:var(--ink-soft); cursor:default; }
+    .tech-chip:hover,.tech-chip:focus-visible { border-color:var(--accent-soft-line); color:var(--accent-ink); outline:none; }
+    .tech-chip::after { content:attr(data-tip); position:absolute; bottom:calc(100% + 10px); left:50%; transform:translateX(-50%) translateY(4px); width:max-content; max-width:220px; background:var(--ink); color:var(--bg); font-family:'Work Sans',sans-serif; font-size:0.78rem; line-height:1.5; text-align:left; padding:9px 12px; border-radius:8px; box-shadow:0 8px 20px rgba(43,33,23,0.18); opacity:0; pointer-events:none; transition:opacity 0.15s,transform 0.15s; z-index:20; }
+    .tech-chip::before { content:""; position:absolute; bottom:calc(100% + 5px); left:50%; transform:translateX(-50%); border:5px solid transparent; border-top-color:var(--ink); opacity:0; pointer-events:none; transition:opacity 0.15s; z-index:20; }
+    .tech-chip:hover::after,.tech-chip:focus-visible::after,.tech-chip:hover::before,.tech-chip:focus-visible::before { opacity:1; transform:translateX(-50%) translateY(0); }
+    .decisions { margin-top:36px; display:flex; flex-direction:column; gap:14px; }
+    .decisions-label { font-size:0.78rem; letter-spacing:0.06em; text-transform:uppercase; color:var(--accent-ink); font-family:'JetBrains Mono',monospace; margin-bottom:4px; }
+    .decision { background:var(--accent-soft); border:1px solid var(--accent-soft-line); border-radius:10px; padding:18px 20px; display:grid; grid-template-columns:auto 1fr; gap:16px; align-items:start; }
+    .decision .idx { font-family:'Fraunces',serif; font-size:1.6rem; color:var(--accent-ink); line-height:1; opacity:0.55; }
+    .decision h4 { margin:0 0 4px; font-size:0.98rem; font-weight:600; color:var(--accent-ink); font-family:'Work Sans',sans-serif; }
+    .decision p { margin:0; font-size:0.92rem; color:var(--ink); }
+    .compare-box { margin-top:16px; display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--line); border:1px solid var(--line); border-radius:10px; overflow:hidden; }
+    .compare-col { background:var(--surface); padding:16px 18px; }
+    .compare-col.after { background:var(--accent-soft); }
+    .compare-label { font-family:'JetBrains Mono',monospace; font-size:0.7rem; letter-spacing:0.04em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:8px; display:block; }
+    .compare-col.after .compare-label { color:var(--accent-ink); }
+    .compare-col p { margin:0; font-size:0.92rem; color:var(--ink); }
+    .results-grid { margin-top:22px; display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:18px; }
+    .result-card { background:var(--surface); border:1px solid var(--line-soft); border-radius:12px; padding:22px; box-shadow:var(--shadow); }
+    .result-card .kicker { font-family:'JetBrains Mono',monospace; font-size:0.7rem; letter-spacing:0.04em; text-transform:uppercase; color:var(--accent-ink); margin-bottom:10px; display:flex; align-items:center; justify-content:space-between; gap:8px; }
+    .result-card h4 { font-family:'Fraunces',serif; font-size:1.1rem; font-weight:600; margin:0 0 8px; }
+    .result-card p { font-size:0.9rem; color:var(--ink-soft); margin:0; }
+    .result-card--clickable { display:block; width:100%; text-align:left; font:inherit; color:inherit; cursor:pointer; transition:transform 0.15s,border-color 0.15s; border:1px solid var(--line-soft); background:var(--surface); border-radius:12px; padding:22px; box-shadow:var(--shadow); }
+    .result-card--clickable .peek { text-transform:none; letter-spacing:0; color:var(--ink-faint); font-size:0.72rem; opacity:0; transition:opacity 0.15s; }
+    .result-card--clickable:hover,.result-card--clickable:focus-visible { border-color:var(--accent-soft-line); transform:translateY(-2px); }
+    .result-card--clickable:hover .peek,.result-card--clickable:focus-visible .peek { opacity:1; }
+    .modal-backdrop { position:fixed; inset:0; background:rgba(20,15,8,0.5); display:flex; align-items:center; justify-content:center; padding:24px; z-index:100; opacity:0; transition:opacity 0.18s; }
+    .modal-backdrop[hidden] { display:none; }
+    .modal-backdrop.is-open { opacity:1; }
+    .modal { background:var(--surface-raised); border:1px solid var(--line-soft); border-radius:16px; max-width:540px; width:100%; max-height:min(80vh,700px); overflow-y:auto; padding:34px; box-shadow:0 20px 60px rgba(43,33,23,0.25); position:relative; transform:translateY(10px) scale(0.98); transition:transform 0.18s; }
+    .modal-backdrop.is-open .modal { transform:translateY(0) scale(1); }
+    .modal-close { position:absolute; top:18px; right:18px; width:32px; height:32px; border-radius:8px; border:1px solid var(--line); background:var(--surface); color:var(--ink-soft); font-size:1.1rem; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+    .modal-close:hover { border-color:var(--accent-soft-line); color:var(--accent-ink); }
+    .modal .kicker { font-family:'JetBrains Mono',monospace; font-size:0.72rem; letter-spacing:0.04em; text-transform:uppercase; color:var(--accent-ink); display:block; margin-bottom:10px; }
+    .modal h3 { font-size:1.3rem; margin-bottom:12px; padding-right:30px; }
+    .modal .modal-lead { font-size:0.95rem; color:var(--ink-soft); margin-bottom:20px; }
+    .modal-steps { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px; }
+    .modal-steps li { display:grid; grid-template-columns:24px 1fr; gap:12px; font-size:0.92rem; }
+    .modal-steps .step-num { font-family:'JetBrains Mono',monospace; font-size:0.75rem; color:var(--accent-ink); background:var(--accent-soft); border:1px solid var(--accent-soft-line); width:24px; height:24px; border-radius:6px; display:flex; align-items:center; justify-content:center; }
+    .screenshot-grid { margin-top:22px; display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:20px; }
+    .screenshot-card { margin:0; background:var(--surface); border:1px solid var(--line-soft); border-radius:12px; overflow:hidden; box-shadow:var(--shadow); }
+    .screenshot-card img { display:block; width:100%; height:auto; border-bottom:1px solid var(--line-soft); }
+    .screenshot-card figcaption { padding:14px 16px; font-size:0.86rem; color:var(--ink-soft); }
+    .screenshot-card figcaption strong { color:var(--ink); font-weight:600; display:block; margin-bottom:2px; }
+    .stat-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:14px; margin-top:22px; }
+    .stat-box { background:var(--surface); border:1px solid var(--line-soft); border-radius:10px; padding:18px 16px; box-shadow:var(--shadow); }
+    .stat-box .num { font-family:'Fraunces',serif; font-size:2rem; color:var(--accent-ink); line-height:1.1; }
+    .stat-box .lbl { font-size:0.82rem; color:var(--ink-soft); margin-top:4px; }
+    .future-grid { margin-top:22px; display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:24px; }
+    .future-col h3 { font-size:0.95rem; font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.03em; color:var(--ink-faint); font-weight:500; margin-bottom:12px; }
+    .future-col .prose { font-size:0.95rem; }
+    .checklist-block { background:var(--surface); border:1px solid var(--line-soft); border-radius:14px; padding:36px; }
+    .checklist-block h2 { font-size:1.4rem; margin-bottom:8px; }
+    .checklist-block .sub { color:var(--ink-soft); font-size:0.92rem; margin-bottom:22px; }
+    .checklist { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:12px; }
+    .checklist li { display:grid; grid-template-columns:22px 1fr; gap:12px; font-size:0.96rem; align-items:start; }
+    .checklist li::before { content:""; width:18px; height:18px; border-radius:5px; border:1.5px solid var(--accent); margin-top:2px; }
+    footer { max-width:1080px; margin:0 auto; padding:40px 28px 60px; border-top:1px solid var(--line); color:var(--ink-faint); font-size:0.82rem; display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; }
+    @media (max-width:600px) {
+      .shell{padding:0 18px 72px;} .topnav{padding:22px 18px 0;} .entry-header{padding:40px 0 32px;}
+      .checklist-block{padding:28px 22px;} .compare-box{grid-template-columns:1fr;}
+    }
+  </style>
+</head>
+<body>
+
+<nav class="topnav">
+  <a href="../index.html">← 返回案例集</a>
+</nav>
+
+<main class="shell">
+
+  <header class="entry-header">
+    <div class="eyebrow">AI 協作案例</div>
+    <h1>用 AI 整理 10 年份的工程簡報資料夾</h1>
+    <p class="tldr">把 200+ 個命名混亂、作者與對象各異的工程 PPT，透過 Claude + Python 自動命名、去重、分類，再抽出所有圖片建成三個可重複利用的素材庫。</p>
+    <div class="meta-row">
+      <span class="tag accent">python-pptx</span>
+      <span class="tag accent">MD5 / pHash</span>
+      <span class="tag accent">PIL / Pillow</span>
+      <span class="tag accent">LibreOffice</span>
+      <span class="tag">文件整理自動化</span>
+      <span class="tag">工程簡報</span>
+      <span class="tag">圖片素材庫</span>
+    </div>
+    <div class="for-who">
+      <strong>適合誰看：</strong>有大量簡報或文件需整理的政府機關、研究單位、工程師，或任何被「找不到對的版本」困擾的人。
+    </div>
+  </header>
+
+  <div class="layout">
+
+    <!-- ── 1. 痛點說明 ─────────────────────────────────── -->
+    <section class="block">
+      <div class="block-head">
+        <div class="block-num">1</div>
+        <h2>痛點說明</h2>
+      </div>
+      <div class="prose">
+        <p>大潮州人工湖與二峰圳導流工程是屏東縣推動多年的水資源工程，累積了 10 年的對外說明簡報。這些簡報由不同的人製作，目的是對不同的機關或民眾做說明，所以作者、說明對象和年份都很混亂。</p>
+        <ul>
+          <li>200+ 個 PPT/PPTX 全部堆在根目錄，沒有子資料夾結構</li>
+          <li>命名格式三種混用：ROC 年（如「107年8月」）、西元年、完全無日期</li>
+          <li>「簡報1.pptx」「最終版」「Final2」「（曹啟鴻）」同時存在，無法判斷版本</li>
+          <li>不同版本的簡報大量引用相同圖片——因為這就是前後版本參照的結果，導致同一張圖在不同檔案裡出現幾十次</li>
+          <li>靠人工逐一確認，一整理就是幾天</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ── 2. 逐步研討 ────────────────────────────────── -->
+    <section class="block">
+      <div class="block-head">
+        <div class="block-num">2</div>
+        <h2>逐步研討</h2>
+      </div>
+
+      <!-- Phase 01 -->
+      <div class="subgroup">
+        <h3>Phase 01 · 命名 &amp; 去重</h3>
+        <div class="prose">
+          <ul>
+            <li>用 python-pptx 讀取每份簡報第一張投影片的標題與副標題框文字</li>
+            <li>自動偵測民國年格式，套用 ROC + 1911 = 西元年轉換，統一輸出 YYYYMMDD_主題.pptx</li>
+            <li>計算每個檔案的 MD5 hash；完全相同者移到 <code>_重複檔案/</code> 子資料夾，不刪除</li>
+          </ul>
+        </div>
+        <div class="compare-box" style="margin-top:16px;">
+          <div class="compare-col">
+            <span class="compare-label">調整前</span>
+            <p>正規表達式直接抓「年月日」→ 大量民國年格式的檔案命名失敗，顯示「未知日期」</p>
+          </div>
+          <div class="compare-col after">
+            <span class="compare-label">調整後</span>
+            <p>加入民國年偵測規則（辨識兩位數「年」格式）→ 122 個檔案全部正確重命名</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phase 02 -->
+      <div class="subgroup">
+        <h3>Phase 02 · 分類整理</h3>
+        <div class="transcript">
+          <div class="line">
+            <span class="who">使用者 prompt</span>
+            <span class="quote">「我有一個已經稍微整理過的版本，先讓你讀懂我的分類邏輯，再幫我把剩下的按照一樣的規則整理。」</span>
+            <div class="result">Claude 先讀使用者整理好的版本，識別出以「簡報對象」為主軸的分類邏輯，而非主動套用年份或主題分層</div>
+          </div>
+          <div class="line">
+            <span class="who">Claude 建議</span>
+            <span class="quote">「是否要增加年份子資料夾，會更系統化？」</span>
+            <div class="result">使用者明確拒絕 → Claude 尊重，不強加，直接以現有資料夾結構為準繩執行批次移動</div>
+          </div>
+        </div>
+        <div class="prose" style="margin-top:14px;">
+          <ul>
+            <li>分類主軸確認：二峰圳/ · 大潮州/ · 大潮州及二峰圳/ · 英文簡報/ · 其他/</li>
+            <li>照片、影片各自放到對應主題的子資料夾</li>
+            <li>用 shutil.move() 批次移動 137 個檔案（Windows 掛載目錄不支援 os.remove()，全程不做刪除）</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Phase 03 -->
+      <div class="subgroup">
+        <h3>Phase 03 · 圖片素材庫 <span style="color:var(--accent-ink);font-size:0.85em;">★ 最有創意的轉化</span></h3>
+        <div class="transcript">
+          <div class="line">
+            <span class="who">原始需求</span>
+            <span class="quote">「幫我比對不同版本簡報的文字差異。」</span>
+            <div class="result">Claude 建議改向：把所有簡報的圖片全部抽出，建成可重複利用的素材庫 → 使用者採用</div>
+          </div>
+        </div>
+        <div class="prose" style="margin-top:14px;">
+          <ul>
+            <li>python-pptx 讀取每張投影片的 shape.image.blob（圖片的原始二進位資料）</li>
+            <li>MD5 去除完全相同的圖片；pHash（感知哈希，閾值 ≤8）去除視覺相似的近重複圖片</li>
+            <li>PIL / Pillow 壓縮到最大 1280×960，JPEG 品質 82%，過濾掉小於 200×150 的圖示</li>
+            <li>組裝成 PPTX：每張圖一頁，附來源路徑與投影片編號標籤</li>
+            <li>舊版 .ppt（PPT97）無法用 python-pptx 直接讀取 → 先用 LibreOffice headless 逐一轉成 .pptx，再抽圖</li>
+          </ul>
+        </div>
+        <div class="tech-chips">
+          <span class="tech-chip" tabindex="0" data-tip="讀取 PPTX 內每張投影片的 shape，取出 image.blob 原始位元組">python-pptx</span>
+          <span class="tech-chip" tabindex="0" data-tip="MD5：完全相同的圖片去重 / pHash：視覺相似圖片去重（漢明距離閾值 ≤8）">MD5 + pHash</span>
+          <span class="tech-chip" tabindex="0" data-tip="壓縮、縮圖、轉 JPEG，控制最終素材庫的檔案大小">PIL / Pillow</span>
+          <span class="tech-chip" tabindex="0" data-tip="把舊版 PPT97 二進位格式轉成 PPTX，讓 python-pptx 可以讀取">LibreOffice headless</span>
+          <span class="tech-chip" tabindex="0" data-tip="每張抽出的圖存磁碟（Step 1），再組裝 PPTX（Step 2），避免 45 秒逾時截斷">兩段式執行</span>
+        </div>
+      </div>
+
+      <!-- Phase 04 -->
+      <div class="subgroup">
+        <h3>Phase 04 · 新素材更新</h3>
+        <div class="transcript">
+          <div class="line">
+            <span class="who">使用者 prompt</span>
+            <span class="quote">「我放了一些新資料進去，幫我比對一下，不重複的就照邏輯整理。」</span>
+            <div class="result">建立 (size, partial-MD5) 快速索引（取每個檔案前 4KB），掃描 待整理/ 資料夾並自動三類分流</div>
+          </div>
+        </div>
+        <div class="prose" style="margin-top:14px;">
+          <ul>
+            <li>文件（PPT/PPTX/PDF）→ 讀第一頁重命名；照片（JPG）→ 保留 IMG_XXXX 原名；影片 → 移到各主題影片/</li>
+            <li>MP3 背景音樂：使用者明確指示全數捨棄</li>
+            <li>11 個已存在的跳過，20 組內部重複只保留一份，335 個新檔案完成分類</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 踩過的坑 -->
+      <div class="subgroup">
+        <h3>踩過的坑</h3>
+        <ul class="pitfall-list">
+          <li>
+            <div class="mark">1</div>
+            <div class="text"><strong>Bash 45 秒逾時</strong>：圖片素材庫腳本執行超時，PPTX 在寫入途中被截斷損毀。解法：拆成 Step 1（抽圖→存磁碟）和 Step 2（組 PPTX）兩段獨立執行，中間用 pickle 保存進度。</div>
+          </li>
+          <li>
+            <div class="mark">2</div>
+            <div class="text"><strong>舊版 .ppt 無法讀取</strong>：PPT97 二進位格式讓 python-pptx 直接拋出 "Package not found"。解法：LibreOffice headless 轉檔，每次轉一個、立刻處理、立刻刪除。</div>
+          </li>
+          <li>
+            <div class="mark">3</div>
+            <div class="text"><strong>EPERM 無法刪除</strong>：Windows 掛載目錄上 os.remove() 噴 Permission Error。解法：全程改用 shutil.move()，搬移而非刪除。</div>
+          </li>
+          <li>
+            <div class="mark">4</div>
+            <div class="text"><strong>/tmp 磁碟爆滿</strong>：18 個轉換後的 PPTX 同時留在 /tmp，累積 1.2 GB 導致沙盒當機。解法：每轉一個 .ppt → 立刻抽完圖 → 立刻刪掉，不累積。</div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- 關鍵決策點 -->
+      <div class="decisions">
+        <div class="decisions-label">關鍵決策點</div>
+        <div class="decision">
+          <div class="idx">1</div>
+          <div>
+            <h4>先讀懂使用者的邏輯，不套 AI 模板</h4>
+            <p>AI 提議用「年份子資料夾」做第二層分類，被使用者拒絕後立刻改弦易轍，以使用者現有的資料夾結構為準繩。教訓：AI 輔助整理的核心是「先看懂人的邏輯再執行」，不是強推 AI 認為更好的結構。</p>
+          </div>
+        </div>
+        <div class="decision">
+          <div class="idx">2</div>
+          <div>
+            <h4>把「版本比對」需求轉化成「圖片素材庫」</h4>
+            <p>原始需求是比對不同版本的文字差異——但抽出、去重再整理成素材庫，對這個工程團隊的實際使用場景更有價值。這個轉化來自 Claude 主動提問「你真正想解決的問題是什麼？」</p>
+          </div>
+        </div>
+        <div class="decision">
+          <div class="idx">3</div>
+          <div>
+            <h4>partial-MD5 快速去重索引</h4>
+            <p>全量 MD5 對大型 PPTX 速度極慢。改成只取每個檔案前 4KB 做 partial-MD5 + 比對大小，快速過濾掉九成非重複，只對疑似重複的才做完整比對——大幅縮短掃描時間。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 3. 成果展示 ─────────────────────────────────── -->
+    <section class="block">
+      <div class="block-head">
+        <div class="block-num">3</div>
+        <h2>成果展示</h2>
+      </div>
+
+      <div class="screenshot-grid">
+        <figure class="screenshot-card">
+          <img src="../assets/images/dachoujou-folder.png" alt="整理後的資料夾結構截圖">
+          <figcaption>
+            <strong>整理後的資料夾結構</strong>
+            二峰圳、大潮州、大潮州及二峰圳、英文簡報等分類清晰呈現，三個圖片素材庫一目了然
+          </figcaption>
+        </figure>
+        <figure class="screenshot-card">
+          <img src="../assets/images/dachoujou-library.jpg" alt="二峰圳圖片素材庫縮圖預覽">
+          <figcaption>
+            <strong>圖片素材庫縮圖預覽</strong>
+            單一素材庫就有 440 頁，涵蓋工程照片、平面配置圖、學術圖表，每張圖附來源標籤
+          </figcaption>
+        </figure>
+      </div>
+
+      <div class="stat-row" style="margin-top:28px;">
+        <div class="stat-box"><div class="num">122</div><div class="lbl">個檔案完成重命名</div></div>
+        <div class="stat-box"><div class="num">26</div><div class="lbl">個重複檔案隔離</div></div>
+        <div class="stat-box"><div class="num">137</div><div class="lbl">個檔案自動分類</div></div>
+        <div class="stat-box"><div class="num">335</div><div class="lbl">個新素材整理完成</div></div>
+        <div class="stat-box"><div class="num">1,267</div><div class="lbl">張獨特圖片（三庫合計）</div></div>
+      </div>
+
+      <p style="font-size:0.92rem;color:var(--ink-soft);margin-top:20px;">以下三個素材庫為本機 .pptx 檔案，點擊可查看說明。</p>
+      <div class="results-grid">
+        <button class="result-card--clickable" onclick="openModal('modal-eifong')" aria-haspopup="dialog">
+          <div class="kicker">圖片素材庫 <span class="peek">點擊查看說明 →</span></div>
+          <h4>二峰圳_圖片素材庫</h4>
+          <p>440 頁 · 51 MB · 二峰圳導流工程相關圖片</p>
+        </button>
+        <button class="result-card--clickable" onclick="openModal('modal-both')" aria-haspopup="dialog">
+          <div class="kicker">圖片素材庫 <span class="peek">點擊查看說明 →</span></div>
+          <h4>大潮州及二峰圳_圖片素材庫</h4>
+          <p>422 頁 · 46 MB · 混合主題的圖片</p>
+        </button>
+        <button class="result-card--clickable" onclick="openModal('modal-dachao')" aria-haspopup="dialog">
+          <div class="kicker">圖片素材庫 <span class="peek">點擊查看說明 →</span></div>
+          <h4>大潮州_圖片素材庫</h4>
+          <p>405 頁 · 35 MB · 大潮州人工湖相關圖片</p>
+        </button>
+      </div>
+    </section>
+
+    <!-- ── 4. 未來方向 ─────────────────────────────────── -->
+    <section class="block">
+      <div class="block-head">
+        <div class="block-num">4</div>
+        <h2>未來方向</h2>
+      </div>
+      <div class="future-grid">
+        <div class="future-col">
+          <h3>本專案還能精進</h3>
+          <div class="prose">
+            <ul>
+              <li>素材庫目前無分類——可依圖片類型細分（工程照片、平面配置圖、學術圖表），單一素材庫幾百張圖，細分後查找效率會大幅提升</li>
+              <li>完成圖片素材庫更新（兩個大型 .ppt 尚未處理，改用逐一轉換策略避免 /tmp 爆滿）</li>
+              <li>加入文字內容比對，做更智能的版本差異分析</li>
+              <li>建立自動化排程：新簡報放進資料夾就自動命名分類</li>
+            </ul>
+          </div>
+        </div>
+        <div class="future-col">
+          <h3>這套方法還能用在哪</h3>
+          <div class="prose">
+            <ul>
+              <li>學術論文管理：PDF 自動命名 + 圖表素材庫</li>
+              <li>工程竣工圖庫：圖面抽取、格式統一、去重</li>
+              <li>客戶提案管理：按客戶 / 年份 / 類型分類</li>
+              <li>照片整理：EXIF 日期重命名 + 視覺重複偵測</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /.layout -->
+
+  <!-- ── Checklist ────────────────────────────────────── -->
+  <div class="checklist-block">
+    <h2>如果你也想試試看</h2>
+    <p class="sub">不需要會寫程式，只需要把情境說清楚。</p>
+    <ul class="checklist">
+      <li><span>描述你的混亂：「我有 XXX 個 PPT，命名混亂，幫我整理」——越具體越好</span></li>
+      <li><span>說清楚命名規則：「第一頁有日期，格式是民國年月日，要轉成西元年」</span></li>
+      <li><span>先跑小批次確認：先試 10 個，確認 AI 理解你的邏輯，再全量執行</span></li>
+      <li><span>讓 AI 讀你的邏輯：自己先整理一個版本 → 讓 AI 看懂 → 再批次處理</span></li>
+      <li><span>說清楚哪些不要：重複的怎麼處理？舊版要不要留？不說清楚會出錯</span></li>
+      <li><span>善用素材庫概念：「幫我把所有 PPT 的圖片抽出來做一個素材庫」超實用</span></li>
+    </ul>
+  </div>
+
+</main>
+
+<!-- ── Modals ──────────────────────────────────────────── -->
+<div id="modal-eifong" class="modal-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="modal-eifong-title">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-eifong')" aria-label="關閉">✕</button>
+    <span class="kicker">圖片素材庫</span>
+    <h3 id="modal-eifong-title">二峰圳_圖片素材庫.pptx</h3>
+    <p class="modal-lead">本機 PPTX 檔案，存放於整理完成的工程資料夾中。</p>
+    <ul class="modal-steps">
+      <li><div class="step-num">→</div><div><strong>440 頁</strong>，51 MB，每頁一張圖附來源標籤</div></li>
+      <li><div class="step-num">→</div><div>涵蓋二峰圳導流工程的工程照片、施工紀錄、說明圖表</div></li>
+      <li><div class="step-num">→</div><div>已透過 MD5 + pHash 去除完全相同與視覺相似的重複圖片</div></li>
+    </ul>
+  </div>
+</div>
+<div id="modal-both" class="modal-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="modal-both-title">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-both')" aria-label="關閉">✕</button>
+    <span class="kicker">圖片素材庫</span>
+    <h3 id="modal-both-title">大潮州及二峰圳_圖片素材庫.pptx</h3>
+    <p class="modal-lead">本機 PPTX 檔案，混合主題的圖片集。</p>
+    <ul class="modal-steps">
+      <li><div class="step-num">→</div><div><strong>422 頁</strong>，46 MB</div></li>
+      <li><div class="step-num">→</div><div>來源為跨主題的混合版本簡報，同時涵蓋兩個工程</div></li>
+    </ul>
+  </div>
+</div>
+<div id="modal-dachao" class="modal-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="modal-dachao-title">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-dachao')" aria-label="關閉">✕</button>
+    <span class="kicker">圖片素材庫</span>
+    <h3 id="modal-dachao-title">大潮州_圖片素材庫.pptx</h3>
+    <p class="modal-lead">本機 PPTX 檔案，大潮州人工湖相關圖片集。</p>
+    <ul class="modal-steps">
+      <li><div class="step-num">→</div><div><strong>405 頁</strong>，35 MB</div></li>
+      <li><div class="step-num">→</div><div>涵蓋大潮州人工湖的工程照片、配置圖、地圖</div></li>
+    </ul>
+  </div>
+</div>
+
+<footer>
+  <span>AI 協作案例 · 大潮州人工湖 &amp; 二峰圳工程簡報整理</span>
+  <span>2026</span>
+</footer>
+
+<script>
+  function openModal(id) {
+    const el = document.getElementById(id);
+    el.removeAttribute('hidden');
+    requestAnimationFrame(() => el.classList.add('is-open'));
+    el.querySelector('.modal-close').focus();
+  }
+  function closeModal(id) {
+    const el = document.getElementById(id);
+    el.classList.remove('is-open');
+    el.addEventListener('transitionend', () => el.setAttribute('hidden',''), { once: true });
+  }
+  document.querySelectorAll('.modal-backdrop').forEach(b => {
+    b.addEventListener('click', e => { if (e.target === b) closeModal(b.id); });
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.modal-backdrop.is-open').forEach(b => closeModal(b.id));
+    }
+  });
+</script>
+
+</body>
+</html>
